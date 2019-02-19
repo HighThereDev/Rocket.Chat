@@ -481,7 +481,7 @@ RocketChat.API.v1.addRoute('channels.list.joined', { authRequired: true, rateLim
 		const { sort, fields } = this.parseJsonQuery();
 
 		// TODO: CACHE: Add Breacking notice since we removed the query param
-		const cursor = RocketChat.models.Rooms.findBySubscriptionTypeAndUserId('c', this.userId, {
+		const cursor = RocketChat.models.Rooms.findBySubscriptionTypeAndUserIdWithoutClosed('c', this.userId, {
 			sort: sort ? sort : { name: 1 },
 			skip: offset,
 			limit: count,
