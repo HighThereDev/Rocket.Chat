@@ -429,6 +429,7 @@ class API extends Restivus {
 		*/
 		return this.addRoute('logout', {
 			authRequired: true,
+			rateLimiterOptions: false,
 		}, {
 			get() {
 				console.warn('Warning: Default logout via GET will be removed in Restivus v1.0. Use POST instead.');

@@ -5,7 +5,7 @@ import { RocketChat } from 'meteor/rocketchat:lib';
 import _ from 'underscore';
 import Busboy from 'busboy';
 
-RocketChat.API.v1.addRoute('users.create', { authRequired: true }, {
+RocketChat.API.v1.addRoute('users.create', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, {
 			email: String,
@@ -201,7 +201,7 @@ RocketChat.API.v1.addRoute('users.register', { authRequired: false, rateLimiterO
 	},
 });
 
-RocketChat.API.v1.addRoute('users.resetAvatar', { authRequired: true }, {
+RocketChat.API.v1.addRoute('users.resetAvatar', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const user = this.getUserFromParams();
 
@@ -217,7 +217,7 @@ RocketChat.API.v1.addRoute('users.resetAvatar', { authRequired: true }, {
 	},
 });
 
-RocketChat.API.v1.addRoute('users.setAvatar', { authRequired: true }, {
+RocketChat.API.v1.addRoute('users.setAvatar', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, Match.ObjectIncluding({
 			avatarUrl: Match.Maybe(String),
@@ -481,7 +481,7 @@ RocketChat.API.v1.addRoute('users.getUsernameSuggestion', { authRequired: true }
 	},
 });
 
-RocketChat.API.v1.addRoute('users.generatePersonalAccessToken', { authRequired: true }, {
+RocketChat.API.v1.addRoute('users.generatePersonalAccessToken', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const { tokenName } = this.bodyParams;
 		if (!tokenName) {
