@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { RocketChat } from 'meteor/rocketchat:lib';
 
-RocketChat.API.v1.addRoute('subscriptions.get', { authRequired: true }, {
+RocketChat.API.v1.addRoute('subscriptions.get', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { updatedSince } = this.queryParams;
 
@@ -29,7 +29,7 @@ RocketChat.API.v1.addRoute('subscriptions.get', { authRequired: true }, {
 	},
 });
 
-RocketChat.API.v1.addRoute('subscriptions.getOne', { authRequired: true }, {
+RocketChat.API.v1.addRoute('subscriptions.getOne', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { roomId } = this.requestParams();
 
@@ -53,7 +53,7 @@ RocketChat.API.v1.addRoute('subscriptions.getOne', { authRequired: true }, {
 	Params:
 		- rid: The rid of the room to be marked as read.
  */
-RocketChat.API.v1.addRoute('subscriptions.read', { authRequired: true }, {
+RocketChat.API.v1.addRoute('subscriptions.read', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, {
 			rid: String,
@@ -67,7 +67,7 @@ RocketChat.API.v1.addRoute('subscriptions.read', { authRequired: true }, {
 	},
 });
 
-RocketChat.API.v1.addRoute('subscriptions.unread', { authRequired: true }, {
+RocketChat.API.v1.addRoute('subscriptions.unread', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const { roomId, firstUnreadMessage } = this.bodyParams;
 		if (!roomId && (firstUnreadMessage && !firstUnreadMessage._id)) {

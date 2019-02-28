@@ -73,7 +73,7 @@ RocketChat.API.v1.addRoute('channels.addOwner', { authRequired: true }, {
 	},
 });
 
-RocketChat.API.v1.addRoute('channels.archive', { authRequired: true }, {
+RocketChat.API.v1.addRoute('channels.archive', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const findResult = findChannelByIdOrName({ params: this.requestParams() });
 
@@ -85,7 +85,7 @@ RocketChat.API.v1.addRoute('channels.archive', { authRequired: true }, {
 	},
 });
 
-RocketChat.API.v1.addRoute('channels.close', { authRequired: true }, {
+RocketChat.API.v1.addRoute('channels.close', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const findResult = findChannelByIdOrName({ params: this.requestParams(), checkedArchived: false });
 
@@ -107,7 +107,7 @@ RocketChat.API.v1.addRoute('channels.close', { authRequired: true }, {
 	},
 });
 
-RocketChat.API.v1.addRoute('channels.counters', { authRequired: true }, {
+RocketChat.API.v1.addRoute('channels.counters', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const access = RocketChat.authz.hasPermission(this.userId, 'view-room-administration');
 		const { userId } = this.requestParams();
@@ -637,7 +637,7 @@ RocketChat.API.v1.addRoute('channels.online', { authRequired: true, rateLimiterO
 	},
 });
 
-RocketChat.API.v1.addRoute('channels.open', { authRequired: true }, {
+RocketChat.API.v1.addRoute('channels.open', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const findResult = findChannelByIdOrName({ params: this.requestParams(), checkedArchived: false });
 
