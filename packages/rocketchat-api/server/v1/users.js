@@ -81,7 +81,7 @@ RocketChat.API.v1.addRoute('users.deleteOwnAccount', { authRequired: true }, {
 	},
 });
 
-RocketChat.API.v1.addRoute('users.getAvatar', { authRequired: false }, {
+RocketChat.API.v1.addRoute('users.getAvatar', { authRequired: false, rateLimiterOptions: false }, {
 	get() {
 		const user = this.getUserFromParams();
 
