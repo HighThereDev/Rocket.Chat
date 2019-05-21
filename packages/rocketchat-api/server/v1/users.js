@@ -330,7 +330,7 @@ RocketChat.API.v1.addRoute('users.update', { authRequired: true, rateLimiterOpti
 	},
 });
 
-RocketChat.API.v1.addRoute('users.updateOwnBasicInfo', { authRequired: true }, {
+RocketChat.API.v1.addRoute('users.updateOwnBasicInfo', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, {
 			data: Match.ObjectIncluding({
@@ -368,7 +368,7 @@ RocketChat.API.v1.addRoute('users.createToken', { authRequired: true, rateLimite
 	},
 });
 
-RocketChat.API.v1.addRoute('users.getPreferences', { authRequired: true }, {
+RocketChat.API.v1.addRoute('users.getPreferences', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const user = RocketChat.models.Users.findOneById(this.userId);
 		if (user.settings) {
@@ -493,7 +493,7 @@ RocketChat.API.v1.addRoute('users.generatePersonalAccessToken', { authRequired: 
 	},
 });
 
-RocketChat.API.v1.addRoute('users.regeneratePersonalAccessToken', { authRequired: true }, {
+RocketChat.API.v1.addRoute('users.regeneratePersonalAccessToken', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const { tokenName } = this.bodyParams;
 		if (!tokenName) {
@@ -505,7 +505,7 @@ RocketChat.API.v1.addRoute('users.regeneratePersonalAccessToken', { authRequired
 	},
 });
 
-RocketChat.API.v1.addRoute('users.getPersonalAccessTokens', { authRequired: true }, {
+RocketChat.API.v1.addRoute('users.getPersonalAccessTokens', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		if (!RocketChat.authz.hasPermission(this.userId, 'create-personal-access-tokens')) {
 			throw new Meteor.Error('not-authorized', 'Not Authorized');
@@ -525,7 +525,7 @@ RocketChat.API.v1.addRoute('users.getPersonalAccessTokens', { authRequired: true
 	},
 });
 
-RocketChat.API.v1.addRoute('users.removePersonalAccessToken', { authRequired: true }, {
+RocketChat.API.v1.addRoute('users.removePersonalAccessToken', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const { tokenName } = this.bodyParams;
 		if (!tokenName) {
