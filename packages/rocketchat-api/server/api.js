@@ -219,9 +219,10 @@ class API extends Restivus {
 					};
 					let result;
 					try {
-						const shouldVerifyRateLimit = rateLimiterDictionary.hasOwnProperty(objectForRateLimitMatch.route)
-							&& (!this.userId || !RocketChat.authz.hasPermission(this.userId, 'api-bypass-rate-limit'))
-							&& ((process.env.NODE_ENV === 'development' && RocketChat.settings.get('API_Enable_Rate_Limiter_Dev') === true) || process.env.NODE_ENV !== 'development');
+						// const shouldVerifyRateLimit = rateLimiterDictionary.hasOwnProperty(objectForRateLimitMatch.route)
+						// 	&& (!this.userId || !RocketChat.authz.hasPermission(this.userId, 'api-bypass-rate-limit'))
+						// 	&& ((process.env.NODE_ENV === 'development' && RocketChat.settings.get('API_Enable_Rate_Limiter_Dev') === true) || process.env.NODE_ENV !== 'development');
+						const shouldVerifyRateLimit = false;
 						if (shouldVerifyRateLimit) {
 							rateLimiterDictionary[objectForRateLimitMatch.route].rateLimiter.increment(objectForRateLimitMatch);
 							const attemptResult = rateLimiterDictionary[objectForRateLimitMatch.route].rateLimiter.check(objectForRateLimitMatch);
