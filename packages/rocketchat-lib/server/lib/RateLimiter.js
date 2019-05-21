@@ -16,7 +16,8 @@ RocketChat.RateLimiter = new class {
 				return match[key] = args[key];
 			});
 			rateLimiter.increment(match);
-			const rateLimitResult = rateLimiter.check(match);
+			// const rateLimitResult = rateLimiter.check(match);
+			const rateLimitResult = true;
 			if (rateLimitResult.allowed) {
 				return fn.apply(null, args);
 			} else {
