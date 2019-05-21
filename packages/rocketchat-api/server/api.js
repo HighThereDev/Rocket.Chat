@@ -211,32 +211,32 @@ class API extends Restivus {
 						entrypoint: route,
 					});
 
-					logger.debug(`${ this.request.method.toUpperCase() }: ${ this.request.url }`);
-					const requestIp = this.request.headers['x-forwarded-for'] || this.request.connection.remoteAddress || this.request.socket.remoteAddress || this.request.connection.socket.remoteAddress;
-					const objectForRateLimitMatch = {
-						IPAddr: requestIp,
-						route: `${ this.request.route }${ this.request.method.toLowerCase() }`,
-					};
+					// logger.debug(`${ this.request.method.toUpperCase() }: ${ this.request.url }`);
+					// const requestIp = this.request.headers['x-forwarded-for'] || this.request.connection.remoteAddress || this.request.socket.remoteAddress || this.request.connection.socket.remoteAddress;
+					// const objectForRateLimitMatch = {
+					// 	IPAddr: requestIp,
+					// 	route: `${ this.request.route }${ this.request.method.toLowerCase() }`,
+					// };
 					let result;
 					try {
 						// const shouldVerifyRateLimit = rateLimiterDictionary.hasOwnProperty(objectForRateLimitMatch.route)
 						// 	&& (!this.userId || !RocketChat.authz.hasPermission(this.userId, 'api-bypass-rate-limit'))
 						// 	&& ((process.env.NODE_ENV === 'development' && RocketChat.settings.get('API_Enable_Rate_Limiter_Dev') === true) || process.env.NODE_ENV !== 'development');
-						const shouldVerifyRateLimit = false;
-						if (shouldVerifyRateLimit) {
-							rateLimiterDictionary[objectForRateLimitMatch.route].rateLimiter.increment(objectForRateLimitMatch);
-							const attemptResult = rateLimiterDictionary[objectForRateLimitMatch.route].rateLimiter.check(objectForRateLimitMatch);
-							const timeToResetAttempsInSeconds = Math.ceil(attemptResult.timeToReset / 1000);
-							this.response.setHeader('X-RateLimit-Limit', rateLimiterDictionary[objectForRateLimitMatch.route].options.numRequestsAllowed);
-							this.response.setHeader('X-RateLimit-Remaining', attemptResult.numInvocationsLeft);
-							this.response.setHeader('X-RateLimit-Reset', new Date().getTime() + attemptResult.timeToReset);
-							if (!attemptResult.allowed) {
-								throw new Meteor.Error('error-too-many-requests', `Error, too many requests. Please slow down. You must wait ${ timeToResetAttempsInSeconds } seconds before trying this endpoint again.`, {
-									timeToReset: attemptResult.timeToReset,
-									seconds: timeToResetAttempsInSeconds,
-								});
-							}
-						}
+						// const shouldVerifyRateLimit = false;
+						// if (shouldVerifyRateLimit) {
+						// 	rateLimiterDictionary[objectForRateLimitMatch.route].rateLimiter.increment(objectForRateLimitMatch);
+						// 	const attemptResult = rateLimiterDictionary[objectForRateLimitMatch.route].rateLimiter.check(objectForRateLimitMatch);
+						// 	const timeToResetAttempsInSeconds = Math.ceil(attemptResult.timeToReset / 1000);
+						// 	this.response.setHeader('X-RateLimit-Limit', rateLimiterDictionary[objectForRateLimitMatch.route].options.numRequestsAllowed);
+						// 	this.response.setHeader('X-RateLimit-Remaining', attemptResult.numInvocationsLeft);
+						// 	this.response.setHeader('X-RateLimit-Reset', new Date().getTime() + attemptResult.timeToReset);
+						// 	if (!attemptResult.allowed) {
+						// 		throw new Meteor.Error('error-too-many-requests', `Error, too many requests. Please slow down. You must wait ${ timeToResetAttempsInSeconds } seconds before trying this endpoint again.`, {
+						// 			timeToReset: attemptResult.timeToReset,
+						// 			seconds: timeToResetAttempsInSeconds,
+						// 		});
+						// 	}
+						// }
 
 						if (shouldVerifyPermissions && (!this.userId || !hasAllPermission(this.userId, options.permissionsRequired))) {
 							throw new Meteor.Error('error-unauthorized', 'User does not have the permissions required for this action', {
