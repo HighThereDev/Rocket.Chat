@@ -293,7 +293,7 @@ RocketChat.API.v1.addRoute('users.setAvatar', { authRequired: true, rateLimiterO
 	},
 });
 
-RocketChat.API.v1.addRoute('users.update', { authRequired: true, rateLimiterOptions: { numRequestsAllowed: 1200000, intervalTimeInMS: 10000 } }, {
+RocketChat.API.v1.addRoute('users.update', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, {
 			userId: String,
