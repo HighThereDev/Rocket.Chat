@@ -704,6 +704,21 @@ export class Rooms extends Base {
 		return this.find(query, options);
 	}
 
+	findBySubscriptionTypeAndUserIdDirect(type, userId, options) {
+		const data = Subscriptions.findByUserIdAndType(userId, type, { fields: { rid: 1 } }).fetch()
+			.map((item) => item.rid);
+
+		const query = {
+			t: type,
+			_id: {
+				$in: data,
+			},
+			'customFields.channel_type': 'direct_messages',
+		};
+
+		return this.find(query, options);
+	}
+
 	findBySubscriptionUserIdUpdatedAfter(userId, _updatedAt, options) {
 		const ids = Subscriptions.findByUserId(userId, { fields: { rid: 1 } }).fetch()
 			.map((item) => item.rid);
