@@ -714,6 +714,7 @@ export class Rooms extends Base {
 				$in: data,
 			},
 			'customFields.channel_type': 'direct_messages',
+			open: true,
 		};
 
 		return this.find(query, options);
