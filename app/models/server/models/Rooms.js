@@ -705,7 +705,7 @@ export class Rooms extends Base {
 	}
 
 	findBySubscriptionTypeAndUserIdDirect(type, userId, options) {
-		const data = Subscriptions.findByUserIdAndType(userId, type, { fields: { rid: 1 } }).fetch()
+		const data = Subscriptions.findByUserIdAndTypeWithoutClosed(userId, type, { fields: { rid: 1 } }).fetch()
 			.map((item) => item.rid);
 
 		const query = {
@@ -714,7 +714,6 @@ export class Rooms extends Base {
 				$in: data,
 			},
 			'customFields.channel_type': 'direct_messages',
-			open: true,
 		};
 
 		return this.find(query, options);
