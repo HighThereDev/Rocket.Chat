@@ -614,6 +614,70 @@ API.v1.addRoute('channels.messages', { authRequired: true }, {
 		});
 	},
 });
+
+
+API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
+	get() {
+		const { offset, count } = this.getPaginationItems();
+		const { sort, fields, query } = this.parseJsonQuery();
+		const max_distance = 160.934 * 1000;
+		const feed_channel_id = 'GENERAL';
+		const look_for_rooms_ids = [];
+ 
+		// TODO: Get all rooms for public rooms, private rooms that user join and friend messages.
+		// const findResult = findChannelByIdOrName({
+		// 	params: this.requestParams(),
+		// 	checkedArchived: false,
+		// });
+
+		// Type of filter (local, global and friends)
+		params.feed_type
+		// Geocode object 
+		params.user_geocode
+		// Long
+		params.user_geocode.position.lng
+		// Lat
+		params.user_geocode.position.lat		
+		
+		// TODO: next phase
+		// Get all messages for public rooms, private rooms that user join and friend messages.
+		if (params.feed_type === 'local') {
+			// Get all messages using location
+			query = { customFields: { $near: { $geometry: { type: "Point", coordinates: [param.user_geocode.position.lng, param.user_geocode.position.lat] }, $maxDistance: max_distance, $minDistance: 0 } } }
+		} else if (params.feed_type === 'friends') {
+			queyr = {}
+		} else {
+			query = {}
+		}
+
+		const ourQuery = Object.assign({}, query, { rid: { $in: look_for_rooms_ids } });
+
+		// Special check for the permissions
+		if (hasPermission(this.userId, 'view-joined-room') && !Subscriptions.findOneByRoomIdAndUserId(findResult._id, this.userId, { fields: { _id: 1 } })) {
+			return API.v1.unauthorized();
+		}
+		if (!hasPermission(this.userId, 'view-c-room')) {
+			return API.v1.unauthorized();
+		}
+
+		const cursor = Messages.find(ourQuery, {
+			sort: sort || { ts: -1 },
+			skip: offset,
+			limit: count,
+			fields,
+		});
+
+		const total = cursor.count();
+		const messages = cursor.fetch();
+
+		return API.v1.success({
+			messages: normalizeMessagesForUser(messages, this.userId),
+			count: messages.length,
+			offset,
+			total,
+		});
+	},
+});
 // TODO: CACHE: I dont like this method( functionality and how we implemented ) its very expensive
 // TODO check if this code is better or not
 // RocketChat.API.v1.addRoute('channels.online', { authRequired: true }, {
