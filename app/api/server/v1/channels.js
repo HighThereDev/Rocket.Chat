@@ -615,7 +615,7 @@ API.v1.addRoute('channels.messages', { authRequired: true }, {
 	},
 });
 
-
+// TODO: perform tests
 API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 	get() {
 		const { offset, count } = this.getPaginationItems();
@@ -623,12 +623,15 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 		const max_distance = 160.934 * 1000;
 		const feed_channel_id = 'GENERAL';
 		const look_for_rooms_ids = [];
+		const user = Users.findOneById(this.userId);
  
 		// TODO: Get all rooms for public rooms, private rooms that user join and friend messages.
 		// const findResult = findChannelByIdOrName({
 		// 	params: this.requestParams(),
 		// 	checkedArchived: false,
 		// });
+
+		look_for_rooms_ids.push(feed_channel_id);
 
 		// Type of filter (local, global and friends)
 		params.feed_type
@@ -645,20 +648,21 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 			// Get all messages using location
 			query = { customFields: { $near: { $geometry: { type: "Point", coordinates: [param.user_geocode.position.lng, param.user_geocode.position.lat] }, $maxDistance: max_distance, $minDistance: 0 } } }
 		} else if (params.feed_type === 'friends') {
-			queyr = {}
+			// TODO: check which is our "current_user" variable
+			query = { 'u._id': { $in: user.customFields.friend_ids } }
 		} else {
 			query = {}
 		}
 
 		const ourQuery = Object.assign({}, query, { rid: { $in: look_for_rooms_ids } });
 
-		// Special check for the permissions
-		if (hasPermission(this.userId, 'view-joined-room') && !Subscriptions.findOneByRoomIdAndUserId(findResult._id, this.userId, { fields: { _id: 1 } })) {
-			return API.v1.unauthorized();
-		}
-		if (!hasPermission(this.userId, 'view-c-room')) {
-			return API.v1.unauthorized();
-		}
+		// // Special check for the permissions
+		// if (hasPermission(this.userId, 'view-joined-room') && !Subscriptions.findOneByRoomIdAndUserId(findResult._id, this.userId, { fields: { _id: 1 } })) {
+		// 	return API.v1.unauthorized();
+		// }
+		// if (!hasPermission(this.userId, 'view-c-room')) {
+		// 	return API.v1.unauthorized();
+		// }
 
 		const cursor = Messages.find(ourQuery, {
 			sort: sort || { ts: -1 },
@@ -670,6 +674,7 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 		const total = cursor.count();
 		const messages = cursor.fetch();
 
+		// TODO: check response (hide sensitive data)
 		return API.v1.success({
 			messages: normalizeMessagesForUser(messages, this.userId),
 			count: messages.length,
