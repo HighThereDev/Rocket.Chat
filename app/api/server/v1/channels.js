@@ -4,6 +4,7 @@ import _ from 'underscore';
 import { Rooms, Subscriptions, Messages, Uploads, Integrations, Users } from '../../../models';
 import { hasPermission } from '../../../authorization';
 import { normalizeMessagesForUser } from '../../../utils/server/lib/normalizeMessagesForUser';
+import { normalizeMessagesForUserCustomFields } from '../../../utils/server/lib/normalizeMessagesForUserCustomFields';
 import { API } from '../api';
 import { settings } from '../../../settings';
 
@@ -607,7 +608,7 @@ API.v1.addRoute('channels.messages', { authRequired: true }, {
 		const messages = cursor.fetch();
 
 		return API.v1.success({
-			messages: normalizeMessagesForUser(messages, this.userId),
+			messages: normalizeMessagesForUserCustomFields(messages, this.userId),
 			count: messages.length,
 			offset,
 			total,
@@ -622,47 +623,50 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 		const { sort, fields, query } = this.parseJsonQuery();
 		const max_distance = 160.934 * 1000;
 		const feed_channel_id = 'GENERAL';
-		const look_for_rooms_ids = [];
+		let look_for_rooms_ids = [];
 		const user = Users.findOneById(this.userId);
- 
+		const room_types = ['room_private', 'room_public'];
+		const params = this.requestParams();
+		let customQuery = null;
+
 		// TODO: Get all rooms for public rooms, private rooms that user join and friend messages.
 		// const findResult = findChannelByIdOrName({
 		// 	params: this.requestParams(),
 		// 	checkedArchived: false,
 		// });
 
+		const room_cursor = Rooms.findBySubscriptionTypeAndUserIdChannelIds('c', this.userId, room_types, {
+			sort: sort || { name: 1 },
+			fields: { '_id': 1 },
+		});
+		const rooms = room_cursor.fetch()
+		rooms.forEach((room) => {
+			look_for_rooms_ids.push(room._id);
+		});	
+
 		look_for_rooms_ids.push(feed_channel_id);
 
-		// Type of filter (local, global and friends)
-		params.feed_type
-		// Geocode object 
-		params.user_geocode
-		// Long
-		params.user_geocode.position.lng
-		// Lat
-		params.user_geocode.position.lat		
+		// // Type of filter (local, global and friends)
+		// params.feed_type
+		// // Geocode object 
+		// params.user_geocode
+		// // Long
+		// params.user_geocode.position.lng
+		// // Lat
+		// params.user_geocode.position.lat		
 		
-		// TODO: next phase
 		// Get all messages for public rooms, private rooms that user join and friend messages.
 		if (params.feed_type === 'local') {
 			// Get all messages using location
-			query = { customFields: { $near: { $geometry: { type: "Point", coordinates: [param.user_geocode.position.lng, param.user_geocode.position.lat] }, $maxDistance: max_distance, $minDistance: 0 } } }
+			customQuery = { customFields: { $near: { $geometry: { type: "Point", coordinates: [param.user_geocode.position.lng, param.user_geocode.position.lat] }, $maxDistance: max_distance, $minDistance: 0 } } }
 		} else if (params.feed_type === 'friends') {
 			// TODO: check which is our "current_user" variable
-			query = { 'u._id': { $in: user.customFields.friend_ids } }
+			customQuery = { 'u._id': { $in: user.customFields.friend_ids } }
 		} else {
-			query = {}
+			customQuery = {}
 		}
 
-		const ourQuery = Object.assign({}, query, { rid: { $in: look_for_rooms_ids } });
-
-		// // Special check for the permissions
-		// if (hasPermission(this.userId, 'view-joined-room') && !Subscriptions.findOneByRoomIdAndUserId(findResult._id, this.userId, { fields: { _id: 1 } })) {
-		// 	return API.v1.unauthorized();
-		// }
-		// if (!hasPermission(this.userId, 'view-c-room')) {
-		// 	return API.v1.unauthorized();
-		// }
+		const ourQuery = Object.assign({}, customQuery, { rid: { $in: look_for_rooms_ids } });
 
 		const cursor = Messages.find(ourQuery, {
 			sort: sort || { ts: -1 },
@@ -674,9 +678,8 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 		const total = cursor.count();
 		const messages = cursor.fetch();
 
-		// TODO: check response (hide sensitive data)
 		return API.v1.success({
-			messages: normalizeMessagesForUser(messages, this.userId),
+			messages: normalizeMessagesForUserCustomFields(messages, this.userId),
 			count: messages.length,
 			offset,
 			total,
