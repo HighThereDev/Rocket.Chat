@@ -4,7 +4,7 @@ import { Match, check } from 'meteor/check';
 import { Messages } from '../../../models';
 import { canAccessRoom, hasPermission } from '../../../authorization';
 import { normalizeMessagesForUser } from '../../../utils/server/lib/normalizeMessagesForUser';
-import { normalizeMessagesForUserCustomFieldsThread } from '../../../utils/server/lib/normalizeMessagesForUserCustomFieldsThread';
+import { normalizeMessagesForUserCustomFields } from '../../../utils/server/lib/normalizeMessagesForUserCustomFields';
 import { processWebhookMessage } from '../../../lib';
 import { API } from '../api';
 import Rooms from '../../../models/server/models/Rooms';
@@ -499,7 +499,7 @@ API.v1.addRoute('chat.getThreadMessages', { authRequired: true }, {
 		const messages = cursor.fetch();
 
 		return API.v1.success({
-			messages: normalizeMessagesForUserCustomFieldsThread(messages),
+			messages: normalizeMessagesForUserCustomFields(messages),
 			count: messages.length,
 			offset,
 			total,
