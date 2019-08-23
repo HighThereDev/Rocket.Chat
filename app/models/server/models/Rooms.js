@@ -719,7 +719,7 @@ export class Rooms extends Base {
 		return this.find(query, options);
 	}
 
-	findBySubscriptionTypeAndUserIdChannelIds(type, userId, channelIds, options) {
+	findBySubscriptionTypeAndUserIdChannelType(type, userId, channelTypes, options) {
 		const data = Subscriptions.findByUserIdAndTypeWithoutClosed(userId, type, { fields: { rid: 1 } }).fetch()
 			.map((item) => item.rid);
 
@@ -729,7 +729,7 @@ export class Rooms extends Base {
 				$in: data,
 			},
 			'customFields.channel_type': { 
-				$in: channelIds 
+				$in: channelTypes 
 			},
 		};
 

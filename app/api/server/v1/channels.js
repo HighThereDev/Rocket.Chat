@@ -616,6 +616,54 @@ API.v1.addRoute('channels.messages', { authRequired: true }, {
 	},
 });
 
+API.v1.addRoute('channels.lastMessages', { authRequired: true }, {
+	get() {
+		const params = this.requestParams();
+		const { offset, count } = this.getPaginationItems();
+		const { sort, fields, query } = this.parseJsonQuery();
+		const room_types = ['room_public'];
+		let look_for_rooms_ids = ['GENERAL'];
+
+		const room_cursor = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', this.userId, room_types, {
+			sort: sort || { name: 1 },
+			fields: { '_id': 1 },
+		});
+
+		const rooms = room_cursor.fetch()
+		rooms.forEach((room) => {
+			look_for_rooms_ids.push(room._id);
+		});	
+
+		let customQuery = { 'u._id': this.userId, rid: { $in: look_for_rooms_ids }, t: null }
+		const ourQuery = Object.assign({}, customQuery, { });
+
+		// Special check for the permissions
+		if (hasPermission(this.userId, 'view-joined-room') && !Subscriptions.findOneByRoomIdAndUserId(findResult._id, this.userId, { fields: { _id: 1 } })) {
+			return API.v1.unauthorized();
+		}
+		if (!hasPermission(this.userId, 'view-c-room')) {
+			return API.v1.unauthorized();
+		}
+
+		const cursor = Messages.find(ourQuery, {
+			sort: sort || { ts: -1 },
+			skip: offset,
+			limit: count,
+			fields,
+		});
+
+		const total = cursor.count();
+		const messages = cursor.fetch();
+
+		return API.v1.success({
+			messages: normalizeMessagesForUserCustomFields(messages, this.userId),
+			count: messages.length,
+			offset,
+			total,
+		});
+	},
+});
+
 // TODO: perform tests
 API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 	get() {
@@ -635,7 +683,7 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 		// 	checkedArchived: false,
 		// });
 
-		const room_cursor = Rooms.findBySubscriptionTypeAndUserIdChannelIds('c', this.userId, room_types, {
+		const room_cursor = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', this.userId, room_types, {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		});
