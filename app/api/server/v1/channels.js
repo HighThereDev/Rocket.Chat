@@ -624,7 +624,7 @@ API.v1.addRoute('channels.lastMessages', { authRequired: true }, {
 		const room_types = ['room_public'];
 		let look_for_rooms_ids = ['GENERAL'];
 
-		const room_cursor = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', this.userId, room_types, {
+		const room_cursor = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', params.userId, room_types, {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		});
@@ -634,14 +634,14 @@ API.v1.addRoute('channels.lastMessages', { authRequired: true }, {
 			look_for_rooms_ids.push(room._id);
 		});	
 
-		let customQuery = { 'u._id': this.userId, rid: { $in: look_for_rooms_ids }, t: null }
+		let customQuery = { 'u._id': params.userId, rid: { $in: look_for_rooms_ids }, t: null }
 		const ourQuery = Object.assign({}, customQuery, { });
 
 		// Special check for the permissions
-		if (hasPermission(this.userId, 'view-joined-room') && !Subscriptions.findOneByRoomIdAndUserId(findResult._id, this.userId, { fields: { _id: 1 } })) {
+		if (hasPermission(params.userId, 'view-joined-room') && !Subscriptions.findOneByRoomIdAndUserId(findResult._id, params.userId, { fields: { _id: 1 } })) {
 			return API.v1.unauthorized();
 		}
-		if (!hasPermission(this.userId, 'view-c-room')) {
+		if (!hasPermission(params.userId, 'view-c-room')) {
 			return API.v1.unauthorized();
 		}
 
@@ -656,7 +656,7 @@ API.v1.addRoute('channels.lastMessages', { authRequired: true }, {
 		const messages = cursor.fetch();
 
 		return API.v1.success({
-			messages: normalizeMessagesForUserCustomFields(messages, this.userId),
+			messages: normalizeMessagesForUserCustomFields(messages, params.userId),
 			count: messages.length,
 			offset,
 			total,
