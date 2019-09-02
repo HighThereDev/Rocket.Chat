@@ -878,8 +878,7 @@ export class Rooms extends Base {
 		return allRoomIds;
 	}
 
-	findFriendsDisplay(sort, userId) {
-		const user = Users.findOneById(userId);
+	findFriendsDisplay(sort, userId, friendIds) {
 		let allRoomIds = [];
 
 		// 1- Public Rooms current user joined
@@ -893,7 +892,7 @@ export class Rooms extends Base {
 		});
 
 		// 3- Public Rooms that Friends joined
-		roomIds = Rooms.findBySubscriptionTypeAndUserFriends('c', user.customFields.friend_ids, ['room_public'], {
+		roomIds = Rooms.findBySubscriptionTypeAndUserFriends('c', friendIds, ['room_public'], {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id); 
@@ -909,7 +908,7 @@ export class Rooms extends Base {
 		}).fetch().map((item) => item._id);
 		
 		// private rooms that friends joined
-		const friendsRoomIds = Rooms.findBySubscriptionTypeAndUserFriends('c', user.customFields.friend_ids, ['room_private'], {
+		const friendsRoomIds = Rooms.findBySubscriptionTypeAndUserFriends('c', friendIds, ['room_private'], {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id); 

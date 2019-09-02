@@ -552,7 +552,8 @@ API.v1.addRoute('channels.list.room', { authRequired: true }, {
 		} else if (params.type == 'LocalList') {
 			allRoomIds = Rooms.findLocalList(sort, params, maxDistance, this.userId);
 		} else if (params.type == 'FriendsDisplay') {
-			allRoomIds = Rooms.findFriendsDisplay(sort, this.userId);
+			const user = Users.findOneById(this.userId);
+			allRoomIds = Rooms.findFriendsDisplay(sort, this.userId, user.customFields.friend_ids);
 		} 
 
 		// get all rooms from allRoomsIds var
