@@ -832,9 +832,10 @@ export class Rooms extends Base {
 	// Room and Feeds helpers
 	findGlobalList(sort, userId) {
 		let allRoomIds = [];
+		let roomIds = [];
 
 		// 1- Public rooms regardless if user joined or not
-		roomIds = Rooms.findByCustomFieldChannelType(['room_public'], {
+		roomIds = this.findByCustomFieldChannelType(['room_public'], {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id);
@@ -843,7 +844,7 @@ export class Rooms extends Base {
 		});
 
 		// 2- Private rooms where the user has joined
-		roomIds = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', userId, ['room_private'], {
+		roomIds = this.findBySubscriptionTypeAndUserIdChannelType('c', userId, ['room_private'], {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id);
@@ -856,9 +857,10 @@ export class Rooms extends Base {
 
 	findLocalList(sort, params, maxDistance, userId) {
 		let allRoomIds = [];
+		let roomIds = [];
 
 		// 1- Public rooms regardless if user joined or not that are NEAR the user location
-		roomIds = Rooms.findByCustomFieldLocation(params.user_lng, params.user_lat, maxDistance, ['room_public'], {
+		roomIds = this.findByCustomFieldLocation(params.user_lng, params.user_lat, maxDistance, ['room_public'], {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id);
@@ -867,7 +869,7 @@ export class Rooms extends Base {
 		});
 
 		// 2- Private rooms where the user has joined that are NEAR the user location
-		roomIds = Rooms.findBySubscriptionTypeAndCustomFieldLocation('c', userId, params.user_lng, params.user_lat, maxDistance, ['room_private'], {
+		roomIds = this.findBySubscriptionTypeAndCustomFieldLocation('c', userId, params.user_lng, params.user_lat, maxDistance, ['room_private'], {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id);
@@ -880,10 +882,11 @@ export class Rooms extends Base {
 
 	findFriendsDisplay(sort, userId, friendIds) {
 		let allRoomIds = [];
+		let roomIds = [];
 
 		// 1- Public Rooms current user joined
 		// 2- Private Rooms current user joined
-		roomIds = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', userId, ['room_private', 'room_public'], {
+		roomIds = this.findBySubscriptionTypeAndUserIdChannelType('c', userId, ['room_private', 'room_public'], {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id); 
@@ -892,7 +895,7 @@ export class Rooms extends Base {
 		});
 
 		// 3- Public Rooms that Friends joined
-		roomIds = Rooms.findBySubscriptionTypeAndUserFriends('c', friendIds, ['room_public'], {
+		roomIds = this.findBySubscriptionTypeAndUserFriends('c', friendIds, ['room_public'], {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id); 
@@ -902,13 +905,13 @@ export class Rooms extends Base {
 
 		// 4- Private Rooms that Friends joined BUT current user also joined
 		// private rooms of user
-		const userRoomIds = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', userId, ['room_private'], {
+		const userRoomIds = this.findBySubscriptionTypeAndUserIdChannelType('c', userId, ['room_private'], {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id);
 		
 		// private rooms that friends joined
-		const friendsRoomIds = Rooms.findBySubscriptionTypeAndUserFriends('c', friendIds, ['room_private'], {
+		const friendsRoomIds = this.findBySubscriptionTypeAndUserFriends('c', friendIds, ['room_private'], {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id); 
