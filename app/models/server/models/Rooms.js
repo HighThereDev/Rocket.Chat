@@ -878,7 +878,7 @@ export class Rooms extends Base {
 		return allRoomIds;
 	}
 
-	findFiendsDisplay(sort, userId) {
+	findFriendsDisplay(sort, userId) {
 		const user = Users.findOneById(userId);
 		let allRoomIds = [];
 
