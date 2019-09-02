@@ -539,6 +539,42 @@ API.v1.addRoute('channels.list.joined.direct', { authRequired: true }, {
 	},
 });
 
+API.v1.addRoute('channels.list.room', { authRequired: true }, {
+	get() {
+		const { offset, count } = this.getPaginationItems();
+		const { sort, fields } = this.parseJsonQuery();
+		const params = this.requestParams();
+		const maxDistance = 160.934 * 1000;
+		let allRoomIds = [];
+
+		if (params.type == 'GlobalList') {
+			allRoomIds = Rooms.findGlobalList(sort, this.userId);
+		} else if (params.type == 'LocalList') {
+			allRoomIds = Rooms.findLocalList(sort, params, maxDistance, this.userId);
+		} else if (params.type == 'FriendsDisplay') {
+			allRoomIds = Rooms.findFriendsDisplay(sort, this.userId);
+		} 
+
+		// get all rooms from allRoomsIds var
+		const cursor = Rooms.findByIds(allRoomIds, {
+			sort: sort || { name: 1 },
+			skip: offset,
+			limit: count,
+			fields,
+		});
+		
+		const totalCount = cursor.count();
+		const rooms = cursor.fetch();
+
+		return API.v1.success({
+			channels: rooms.map((room) => this.composeRoomWithLastMessageCustomFields(room, this.userId)),
+			offset,
+			count: rooms.length,
+			total: totalCount,
+		});
+	},
+});
+
 API.v1.addRoute('channels.members', { authRequired: true }, {
 	get() {
 		const findResult = findChannelByIdOrName({
@@ -706,7 +742,7 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 		// Get all messages for public rooms, private rooms that user join and friend messages.
 		if (params.feed_type === 'local') {
 			// Get all messages using location
-			customQuery = { customFields: { $near: { $geometry: { type: "Point", coordinates: [param.user_geocode.position.lng, param.user_geocode.position.lat] }, $maxDistance: max_distance, $minDistance: 0 } } }
+			customQuery = { customFields: { $near: { $geometry: { type: "Point", coordinates: [params.user_geocode.position.lng, params.user_geocode.position.lat] }, $maxDistance: max_distance, $minDistance: 0 } } }
 		} else if (params.feed_type === 'friends') {
 			// TODO: check which is our "current_user" variable
 			customQuery = { 'u._id': { $in: user.customFields.friend_ids } }
@@ -734,6 +770,7 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 		});
 	},
 });
+
 // TODO: CACHE: I dont like this method( functionality and how we implemented ) its very expensive
 // TODO check if this code is better or not
 // RocketChat.API.v1.addRoute('channels.online', { authRequired: true }, {

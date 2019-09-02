@@ -736,6 +736,193 @@ export class Rooms extends Base {
 		return this.find(query, options);
 	}
 
+	findByCustomFieldChannelType(channelTypes, options) {
+		const query = {
+			'customFields.channel_type': { 
+				$in: channelTypes 
+			},
+		};
+
+		return this.find(query, options);
+	}
+
+	findByOwnersAndChannelType(owners, channelTypes, options) {
+		const query = {
+			'u._id': { 
+				$in: owners
+			},
+			'customFields.channel_type': { 
+				$in: channelTypes 
+			},
+		};
+
+		return this.find(query, options);
+	}
+
+	findByCustomFieldLocation(longitude, latitude, maxDistance, channelTypes, options) {
+		const query = {
+			'customFields.loc': { 
+				$near: { 
+					$geometry: { 
+						type: "Point", 
+						coordinates: [
+							parseFloat(longitude), 
+							parseFloat(latitude)
+						] 
+					}, 
+					$maxDistance: maxDistance, 
+					$minDistance: 0 
+				} 
+			},
+			'customFields.channel_type': { 
+				$in: channelTypes 
+			},
+		};
+
+		return this.find(query, options);
+	}
+
+	findBySubscriptionTypeAndCustomFieldLocation(type, userId, longitude, latitude, maxDistance, channelTypes, options) {
+		const data = Subscriptions.findByUserIdAndTypeWithoutClosed(userId, type, { fields: { rid: 1 } }).fetch()
+			.map((item) => item.rid);
+
+		const query = {
+			t: type,
+			_id: {
+				$in: data,
+			},
+			'customFields.loc': { 
+				$near: { 
+					$geometry: { 
+						type: "Point", 
+						coordinates: [
+							parseFloat(longitude), 
+							parseFloat(latitude)
+						] 
+					}, 
+					$maxDistance: maxDistance, 
+					$minDistance: 0 
+				} 
+			},
+			'customFields.channel_type': { 
+				$in: channelTypes 
+			},
+		};
+
+		return this.find(query, options);
+	}
+
+	findBySubscriptionTypeAndUserFriends(type, userIds, channelTypes, options) {
+		const data = Subscriptions.findByUserIds(userIds, { fields: { rid: 1 } }).fetch()
+			.map((item) => item.rid);
+
+		const query = {
+			t: type,
+			_id: {
+				$in: data,
+			},
+			'customFields.channel_type': { 
+				$in: channelTypes 
+			},
+		};
+
+		return this.find(query, options);
+	}
+
+	// Room and Feeds helpers
+	findGlobalList(sort, userId) {
+		let allRoomIds = [];
+
+		// 1- Public rooms regardless if user joined or not
+		roomIds = Rooms.findByCustomFieldChannelType(['room_public'], {
+			sort: sort || { name: 1 },
+			fields: { '_id': 1 },
+		}).fetch().map((item) => item._id);
+		roomIds.forEach((roomId) => {
+			allRoomIds.push(roomId);
+		});
+
+		// 2- Private rooms where the user has joined
+		roomIds = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', userId, ['room_private'], {
+			sort: sort || { name: 1 },
+			fields: { '_id': 1 },
+		}).fetch().map((item) => item._id);
+		roomIds.forEach((roomId) => {
+			allRoomIds.push(roomId);
+		});
+
+		return allRoomIds;
+	}
+
+	findLocalList(sort, params, maxDistance, userId) {
+		let allRoomIds = [];
+
+		// 1- Public rooms regardless if user joined or not that are NEAR the user location
+		roomIds = Rooms.findByCustomFieldLocation(params.user_lng, params.user_lat, maxDistance, ['room_public'], {
+			sort: sort || { name: 1 },
+			fields: { '_id': 1 },
+		}).fetch().map((item) => item._id);
+		roomIds.forEach((roomId) => {
+			allRoomIds.push(roomId);
+		});
+
+		// 2- Private rooms where the user has joined that are NEAR the user location
+		roomIds = Rooms.findBySubscriptionTypeAndCustomFieldLocation('c', userId, params.user_lng, params.user_lat, maxDistance, ['room_private'], {
+			sort: sort || { name: 1 },
+			fields: { '_id': 1 },
+		}).fetch().map((item) => item._id);
+		roomIds.forEach((roomId) => {
+			allRoomIds.push(roomId);
+		});
+
+		return allRoomIds;
+	}
+
+	findFiendsDisplay(sort, userId) {
+		const user = Users.findOneById(userId);
+		let allRoomIds = [];
+
+		// 1- Public Rooms current user joined
+		// 2- Private Rooms current user joined
+		roomIds = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', userId, ['room_private', 'room_public'], {
+			sort: sort || { name: 1 },
+			fields: { '_id': 1 },
+		}).fetch().map((item) => item._id); 
+		roomIds.forEach((roomId) => {
+			allRoomIds.push(roomId);
+		});
+
+		// 3- Public Rooms that Friends joined
+		roomIds = Rooms.findBySubscriptionTypeAndUserFriends('c', user.customFields.friend_ids, ['room_public'], {
+			sort: sort || { name: 1 },
+			fields: { '_id': 1 },
+		}).fetch().map((item) => item._id); 
+		roomIds.forEach((roomId) => {
+			allRoomIds.push(roomId);
+		});
+
+		// 4- Private Rooms that Friends joined BUT current user also joined
+		// private rooms of user
+		const userRoomIds = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', userId, ['room_private'], {
+			sort: sort || { name: 1 },
+			fields: { '_id': 1 },
+		}).fetch().map((item) => item._id);
+		
+		// private rooms that friends joined
+		const friendsRoomIds = Rooms.findBySubscriptionTypeAndUserFriends('c', user.customFields.friend_ids, ['room_private'], {
+			sort: sort || { name: 1 },
+			fields: { '_id': 1 },
+		}).fetch().map((item) => item._id); 
+		
+		let result = {};
+		userRoomIds.forEach(function(v) { result[v]=1; });
+		(friendsRoomIds.filter(function(v) { return v in result; })).forEach((roomId) => {
+			allRoomIds.push(roomId);
+		});
+
+		return allRoomIds;
+	}
+
 	findBySubscriptionUserIdUpdatedAfter(userId, _updatedAt, options) {
 		const ids = Subscriptions.findByUserId(userId, { fields: { rid: 1 } }).fetch()
 			.map((item) => item.rid);
