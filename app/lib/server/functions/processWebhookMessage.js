@@ -60,6 +60,7 @@ export const processWebhookMessage = function(messageObj, user, defaultValues = 
 			bot: messageObj.bot,
 			groupable: messageObj.groupable !== undefined ? messageObj.groupable : false,
 			customFields: messageObj.customFields,
+			tmid: messageObj.tmid,
 		};
 
 		if (!_.isEmpty(messageObj.icon_url) || !_.isEmpty(messageObj.avatar)) {
