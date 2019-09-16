@@ -25,6 +25,16 @@ API.helperMethods.set('parseJsonQuery', function _parseJsonQuery() {
 		}
 	}
 
+	let userGeocode;
+	if (this.queryParams.userGeocode) {
+		try {
+			userGeocode = JSON.parse(this.queryParams.userGeocode);
+		} catch (e) {
+			this.logger.warn(`Invalid userGeocode parameter provided "${ this.queryParams.userGeocode }":`, e);
+			throw new Meteor.Error('error-invalid-fields', `Invalid userGeocode parameter provided: "${ this.queryParams.userGeocode }"`, { helperMethod: 'parseJsonQuery' });
+		}
+	}
+
 	// Verify the user's selected fields only contains ones which their role allows
 	if (typeof fields === 'object') {
 		let nonSelectableFields = Object.keys(API.v1.defaultFieldsToExclude);
@@ -82,5 +92,6 @@ API.helperMethods.set('parseJsonQuery', function _parseJsonQuery() {
 		sort,
 		fields,
 		query,
+		userGeocode,
 	};
 });

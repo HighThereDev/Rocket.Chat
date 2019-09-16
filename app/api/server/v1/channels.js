@@ -705,7 +705,7 @@ API.v1.addRoute('channels.lastMessages', { authRequired: true }, {
 API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 	get() {
 		const { offset, count } = this.getPaginationItems();
-		const { sort, fields, query } = this.parseJsonQuery();
+		const { userGeocode, sort, fields, query } = this.parseJsonQuery();
 		const max_distance = 160.934 * 1000;
 		const feed_channel_id = 'GENERAL';
 		let look_for_rooms_ids = [];
@@ -713,12 +713,6 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 		const room_types = ['room_private', 'room_public'];
 		const params = this.requestParams();
 		let customQuery = null;
-
-		// TODO: Get all rooms for public rooms, private rooms that user join and friend messages.
-		// const findResult = findChannelByIdOrName({
-		// 	params: this.requestParams(),
-		// 	checkedArchived: false,
-		// });
 
 		const room_cursor = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', this.userId, room_types, {
 			sort: sort || { name: 1 },
@@ -734,16 +728,16 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 		// // Type of filter (local, global and friends)
 		// params.feed_type
 		// // Geocode object 
-		// params.user_geocode
+		// params.userGeocode
 		// // Long
-		// params.user_geocode.position.lng
+		// params.userGeocode.position.lng
 		// // Lat
-		// params.user_geocode.position.lat		
+		// params.userGeocode.position.lat		
 		
 		// Get all messages for public rooms, private rooms that user join and friend messages.
 		if (params.feed_type === 'local') {
 			// Get all messages using location
-			customQuery = { customFields: { $near: { $geometry: { type: "Point", coordinates: [params.user_geocode.position.lng, params.user_geocode.position.lat] }, $maxDistance: max_distance, $minDistance: 0 } } }
+			customQuery = { customFields: { $near: { $geometry: { type: "Point", coordinates: [userGeocode.position.lng, userGeocode.position.lat] }, $maxDistance: max_distance, $minDistance: 0 } } }
 		} else if (params.feed_type === 'friends') {
 			// TODO: check which is our "current_user" variable
 			customQuery = { 'u._id': { $in: user.customFields.friend_ids } }
