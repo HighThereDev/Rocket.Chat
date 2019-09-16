@@ -735,7 +735,7 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 		// params.userGeocode.position.lat		
 		
 		// Get all messages for public rooms, private rooms that user join and friend messages.
-		if (params.feed_type === 'local') {
+		if (params.feed_type === 'local' && userGeocode !== null) {
 			// Get all messages using location
 			customQuery = { customFields: { $near: { $geometry: { type: "Point", coordinates: [userGeocode.position.lng, userGeocode.position.lat] }, $maxDistance: max_distance, $minDistance: 0 } } }
 		} else if (params.feed_type === 'friends') {
