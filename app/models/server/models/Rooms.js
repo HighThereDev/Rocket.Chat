@@ -713,6 +713,7 @@ export class Rooms extends Base {
 			_id: {
 				$in: data,
 			},
+			'customFields.channel_type' : { $exists: true },
 			'customFields.channel_type': 'direct_message',
 		};
 
@@ -728,6 +729,7 @@ export class Rooms extends Base {
 			_id: {
 				$in: data,
 			},
+			'customFields.channel_type' : { $exists: true },
 			'customFields.channel_type': { 
 				$in: channelTypes 
 			},
@@ -738,6 +740,7 @@ export class Rooms extends Base {
 
 	findByCustomFieldChannelType(channelTypes, options) {
 		const query = {
+			'customFields.channel_type' : { $exists: true },
 			'customFields.channel_type': { 
 				$in: channelTypes 
 			},
@@ -751,6 +754,7 @@ export class Rooms extends Base {
 			'u._id': { 
 				$in: owners
 			},
+			'customFields.channel_type' : { $exists: true },
 			'customFields.channel_type': { 
 				$in: channelTypes 
 			},
@@ -761,6 +765,7 @@ export class Rooms extends Base {
 
 	findByCustomFieldLocation(longitude, latitude, maxDistance, channelTypes, options) {
 		const query = {
+			'customFields.loc' : { $exists: true },
 			'customFields.loc': { 
 				$near: { 
 					$geometry: { 
@@ -774,6 +779,7 @@ export class Rooms extends Base {
 					$minDistance: 0 
 				} 
 			},
+			'customFields.channel_type' : { $exists: true },
 			'customFields.channel_type': { 
 				$in: channelTypes 
 			},
@@ -791,6 +797,7 @@ export class Rooms extends Base {
 			_id: {
 				$in: data,
 			},
+			'customFields.channel_type' : { $exists: true },
 			'customFields.loc': { 
 				$near: { 
 					$geometry: { 
@@ -804,6 +811,7 @@ export class Rooms extends Base {
 					$minDistance: 0 
 				} 
 			},
+			'customFields.channel_type' : { $exists: true },
 			'customFields.channel_type': { 
 				$in: channelTypes 
 			},
@@ -821,6 +829,7 @@ export class Rooms extends Base {
 			_id: {
 				$in: data,
 			},
+			'customFields.channel_type' : { $exists: true },
 			'customFields.channel_type': { 
 				$in: channelTypes 
 			},
