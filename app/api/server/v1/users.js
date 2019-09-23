@@ -20,7 +20,7 @@ import { getFullUserData } from '../../../lib/server/functions/getFullUserData';
 import { API } from '../api';
 import { setStatusText } from '../../../lib/server';
 
-API.v1.addRoute('users.create', { authRequired: true }, {
+API.v1.addRoute('users.create', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, {
 			email: String,
@@ -96,7 +96,7 @@ API.v1.addRoute('users.deleteOwnAccount', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.getAvatar', { authRequired: false }, {
+API.v1.addRoute('users.getAvatar', { authRequired: false, rateLimiterOptions: false }, {
 	get() {
 		const user = this.getUserFromParams();
 
@@ -110,7 +110,7 @@ API.v1.addRoute('users.getAvatar', { authRequired: false }, {
 	},
 });
 
-API.v1.addRoute('users.setActiveStatus', { authRequired: true }, {
+API.v1.addRoute('users.setActiveStatus', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, {
 			userId: String,
@@ -128,7 +128,7 @@ API.v1.addRoute('users.setActiveStatus', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.getPresence', { authRequired: true }, {
+API.v1.addRoute('users.getPresence', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		if (this.isUserFromParams()) {
 			const user = Users.findOneById(this.userId);
@@ -147,7 +147,7 @@ API.v1.addRoute('users.getPresence', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.info', { authRequired: true }, {
+API.v1.addRoute('users.info', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { username } = this.getUserFromParams();
 		const { fields } = this.parseJsonQuery();
@@ -183,7 +183,7 @@ API.v1.addRoute('users.info', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.list', { authRequired: true }, {
+API.v1.addRoute('users.list', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		if (!hasPermission(this.userId, 'view-d-room')) {
 			return API.v1.unauthorized();
@@ -208,7 +208,7 @@ API.v1.addRoute('users.list', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.register', { authRequired: false }, {
+API.v1.addRoute('users.register', { authRequired: false, rateLimiterOptions: false }, {
 	post() {
 		if (this.userId) {
 			return API.v1.failure('Logged in users can not register again.');
@@ -234,7 +234,7 @@ API.v1.addRoute('users.register', { authRequired: false }, {
 	},
 });
 
-API.v1.addRoute('users.resetAvatar', { authRequired: true }, {
+API.v1.addRoute('users.resetAvatar', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const user = this.getUserFromParams();
 
@@ -250,7 +250,7 @@ API.v1.addRoute('users.resetAvatar', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.setAvatar', { authRequired: true }, {
+API.v1.addRoute('users.setAvatar', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, Match.ObjectIncluding({
 			avatarUrl: Match.Maybe(String),
@@ -326,7 +326,7 @@ API.v1.addRoute('users.setAvatar', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.getStatus', { authRequired: true }, {
+API.v1.addRoute('users.getStatus', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		if (this.isUserFromParams()) {
 			const user = Users.findOneById(this.userId);
@@ -346,7 +346,7 @@ API.v1.addRoute('users.getStatus', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.setStatus', { authRequired: true }, {
+API.v1.addRoute('users.setStatus', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, Match.ObjectIncluding({
 			status: Match.Maybe(String),
@@ -393,7 +393,7 @@ API.v1.addRoute('users.setStatus', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.update', { authRequired: true }, {
+API.v1.addRoute('users.update', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, {
 			userId: String,
@@ -431,7 +431,7 @@ API.v1.addRoute('users.update', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.updateOwnBasicInfo', { authRequired: true }, {
+API.v1.addRoute('users.updateOwnBasicInfo', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, {
 			data: Match.ObjectIncluding({
@@ -460,7 +460,7 @@ API.v1.addRoute('users.updateOwnBasicInfo', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.createToken', { authRequired: true }, {
+API.v1.addRoute('users.createToken', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const user = this.getUserFromParams();
 		let data;
@@ -471,7 +471,7 @@ API.v1.addRoute('users.createToken', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.getPreferences', { authRequired: true }, {
+API.v1.addRoute('users.getPreferences', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const user = Users.findOneById(this.userId);
 		if (user.settings) {
@@ -486,7 +486,7 @@ API.v1.addRoute('users.getPreferences', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.setPreferences', { authRequired: true }, {
+API.v1.addRoute('users.setPreferences', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, {
 			userId: Match.Maybe(String),
@@ -584,7 +584,7 @@ API.v1.addRoute('users.getUsernameSuggestion', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.generatePersonalAccessToken', { authRequired: true }, {
+API.v1.addRoute('users.generatePersonalAccessToken', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const { tokenName } = this.bodyParams;
 		if (!tokenName) {
@@ -596,7 +596,7 @@ API.v1.addRoute('users.generatePersonalAccessToken', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.regeneratePersonalAccessToken', { authRequired: true }, {
+API.v1.addRoute('users.regeneratePersonalAccessToken', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const { tokenName } = this.bodyParams;
 		if (!tokenName) {
@@ -608,7 +608,7 @@ API.v1.addRoute('users.regeneratePersonalAccessToken', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.getPersonalAccessTokens', { authRequired: true }, {
+API.v1.addRoute('users.getPersonalAccessTokens', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		if (!hasPermission(this.userId, 'create-personal-access-tokens')) {
 			throw new Meteor.Error('not-authorized', 'Not Authorized');
@@ -628,7 +628,7 @@ API.v1.addRoute('users.getPersonalAccessTokens', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.removePersonalAccessToken', { authRequired: true }, {
+API.v1.addRoute('users.removePersonalAccessToken', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const { tokenName } = this.bodyParams;
 		if (!tokenName) {
@@ -642,7 +642,7 @@ API.v1.addRoute('users.removePersonalAccessToken', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('users.presence', { authRequired: true }, {
+API.v1.addRoute('users.presence', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { from } = this.queryParams;
 

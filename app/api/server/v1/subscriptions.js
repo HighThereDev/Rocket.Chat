@@ -4,7 +4,7 @@ import { check } from 'meteor/check';
 import { Subscriptions } from '../../../models';
 import { API } from '../api';
 
-API.v1.addRoute('subscriptions.get', { authRequired: true }, {
+API.v1.addRoute('subscriptions.get', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { updatedSince } = this.queryParams;
 
@@ -31,7 +31,7 @@ API.v1.addRoute('subscriptions.get', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('subscriptions.getOne', { authRequired: true }, {
+API.v1.addRoute('subscriptions.getOne', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { roomId } = this.requestParams();
 
@@ -55,7 +55,7 @@ API.v1.addRoute('subscriptions.getOne', { authRequired: true }, {
 	Params:
 		- rid: The rid of the room to be marked as read.
  */
-API.v1.addRoute('subscriptions.read', { authRequired: true }, {
+API.v1.addRoute('subscriptions.read', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, {
 			rid: String,
@@ -69,7 +69,7 @@ API.v1.addRoute('subscriptions.read', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('subscriptions.unread', { authRequired: true }, {
+API.v1.addRoute('subscriptions.unread', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const { roomId, firstUnreadMessage } = this.bodyParams;
 		if (!roomId && (firstUnreadMessage && !firstUnreadMessage._id)) {

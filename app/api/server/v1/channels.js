@@ -81,7 +81,7 @@ API.v1.addRoute('channels.addOwner', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.archive', { authRequired: true }, {
+API.v1.addRoute('channels.archive', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const findResult = findChannelByIdOrName({ params: this.requestParams() });
 
@@ -93,7 +93,7 @@ API.v1.addRoute('channels.archive', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.close', { authRequired: true }, {
+API.v1.addRoute('channels.close', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const findResult = findChannelByIdOrName({ params: this.requestParams(), checkedArchived: false });
 
@@ -115,7 +115,7 @@ API.v1.addRoute('channels.close', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.counters', { authRequired: true }, {
+API.v1.addRoute('channels.counters', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const access = hasPermission(this.userId, 'view-room-administration');
 		const { userId } = this.requestParams();
@@ -201,7 +201,7 @@ API.channels.create = {
 	execute: createChannel,
 };
 
-API.v1.addRoute('channels.create', { authRequired: true }, {
+API.v1.addRoute('channels.create', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const { userId, bodyParams } = this;
 
@@ -329,7 +329,7 @@ API.v1.addRoute('channels.getIntegrations', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.history', { authRequired: true }, {
+API.v1.addRoute('channels.history', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const findResult = findChannelByIdOrName({ params: this.requestParams(), checkedArchived: false });
 
@@ -378,7 +378,7 @@ API.v1.addRoute('channels.history', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.info', { authRequired: true }, {
+API.v1.addRoute('channels.info', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		return API.v1.success({
 			channel: findChannelByIdOrName({
@@ -390,7 +390,7 @@ API.v1.addRoute('channels.info', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.invite', { authRequired: true }, {
+API.v1.addRoute('channels.invite', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const findResult = findChannelByIdOrName({ params: this.requestParams() });
 
@@ -406,7 +406,7 @@ API.v1.addRoute('channels.invite', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.join', { authRequired: true }, {
+API.v1.addRoute('channels.join', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const findResult = findChannelByIdOrName({ params: this.requestParams() });
 
@@ -436,7 +436,7 @@ API.v1.addRoute('channels.kick', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.leave', { authRequired: true }, {
+API.v1.addRoute('channels.leave', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const findResult = findChannelByIdOrName({ params: this.requestParams() });
 
@@ -450,7 +450,7 @@ API.v1.addRoute('channels.leave', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.list', { authRequired: true }, {
+API.v1.addRoute('channels.list', { authRequired: true, rateLimiterOptions: false }, {
 	get: {
 		// This is defined as such only to provide an example of how the routes can be defined :X
 		action() {
@@ -489,7 +489,7 @@ API.v1.addRoute('channels.list', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.list.joined', { authRequired: true }, {
+API.v1.addRoute('channels.list.joined', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { offset, count } = this.getPaginationItems();
 		const { sort, fields } = this.parseJsonQuery();
@@ -514,7 +514,7 @@ API.v1.addRoute('channels.list.joined', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.list.joined.direct', { authRequired: true }, {
+API.v1.addRoute('channels.list.joined.direct', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { offset, count } = this.getPaginationItems();
 		const { sort, fields } = this.parseJsonQuery();
@@ -539,7 +539,7 @@ API.v1.addRoute('channels.list.joined.direct', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.list.room', { authRequired: true }, {
+API.v1.addRoute('channels.list.room', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { offset, count } = this.getPaginationItems();
 		const { sort, fields } = this.parseJsonQuery();
@@ -576,7 +576,7 @@ API.v1.addRoute('channels.list.room', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.members', { authRequired: true }, {
+API.v1.addRoute('channels.members', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const findResult = findChannelByIdOrName({
 			params: this.requestParams(),
@@ -615,7 +615,7 @@ API.v1.addRoute('channels.members', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.messages', { authRequired: true }, {
+API.v1.addRoute('channels.messages', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const findResult = findChannelByIdOrName({
 			params: this.requestParams(),
@@ -653,7 +653,7 @@ API.v1.addRoute('channels.messages', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.lastMessages', { authRequired: true }, {
+API.v1.addRoute('channels.lastMessages', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const params = this.requestParams();
 		const { offset, count } = this.getPaginationItems();
@@ -702,7 +702,7 @@ API.v1.addRoute('channels.lastMessages', { authRequired: true }, {
 });
 
 // TODO: perform tests
-API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
+API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { offset, count } = this.getPaginationItems();
 		const { userGeocode, sort, fields, query } = this.parseJsonQuery();
@@ -795,7 +795,7 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true }, {
 // 	}
 // });
 
-API.v1.addRoute('channels.online', { authRequired: true }, {
+API.v1.addRoute('channels.online', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { query } = this.parseJsonQuery();
 		const ourQuery = Object.assign({}, query, { t: 'c' });
@@ -827,7 +827,7 @@ API.v1.addRoute('channels.online', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.open', { authRequired: true }, {
+API.v1.addRoute('channels.open', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const findResult = findChannelByIdOrName({ params: this.requestParams(), checkedArchived: false });
 
@@ -1064,7 +1064,7 @@ API.v1.addRoute('channels.setAnnouncement', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.setType', { authRequired: true }, {
+API.v1.addRoute('channels.setType', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		if (!this.bodyParams.type || !this.bodyParams.type.trim()) {
 			return API.v1.failure('The bodyParam "type" is required');
@@ -1086,7 +1086,7 @@ API.v1.addRoute('channels.setType', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.unarchive', { authRequired: true }, {
+API.v1.addRoute('channels.unarchive', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const findResult = findChannelByIdOrName({ params: this.requestParams(), checkedArchived: false });
 
@@ -1102,7 +1102,7 @@ API.v1.addRoute('channels.unarchive', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('channels.getAllUserMentionsByChannel', { authRequired: true }, {
+API.v1.addRoute('channels.getAllUserMentionsByChannel', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { roomId } = this.requestParams();
 		const { offset, count } = this.getPaginationItems();
@@ -1135,7 +1135,7 @@ API.v1.addRoute('channels.getAllUserMentionsByChannel', { authRequired: true }, 
 	},
 });
 
-API.v1.addRoute('channels.roles', { authRequired: true }, {
+API.v1.addRoute('channels.roles', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const findResult = findChannelByIdOrName({ params: this.requestParams() });
 

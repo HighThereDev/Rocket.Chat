@@ -14,7 +14,7 @@ import { getURL } from '../../../utils/lib/getURL';
 
 // DEPRECATED
 // Will be removed after v1.12.0
-API.v1.addRoute('info', { authRequired: false }, {
+API.v1.addRoute('info', { authRequired: false, rateLimiterOptions: false }, {
 	get() {
 		const warningMessage = 'The endpoint "/v1/info" is deprecated and will be removed after version v1.12.0';
 		console.warn(warningMessage);
@@ -42,7 +42,7 @@ API.v1.addRoute('info', { authRequired: false }, {
 	},
 });
 
-API.v1.addRoute('me', { authRequired: true }, {
+API.v1.addRoute('me', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		return API.v1.success(this.getUserInfo(Users.findOneById(this.userId, { fields: getDefaultUserFields() })));
 	},

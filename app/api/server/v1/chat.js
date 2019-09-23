@@ -11,7 +11,7 @@ import Rooms from '../../../models/server/models/Rooms';
 import Users from '../../../models/server/models/Users';
 import { settings } from '../../../settings';
 
-API.v1.addRoute('chat.delete', { authRequired: true }, {
+API.v1.addRoute('chat.delete', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, Match.ObjectIncluding({
 			msgId: String,
@@ -45,7 +45,7 @@ API.v1.addRoute('chat.delete', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.syncMessages', { authRequired: true }, {
+API.v1.addRoute('chat.syncMessages', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { roomId, lastUpdate } = this.queryParams;
 
@@ -77,7 +77,7 @@ API.v1.addRoute('chat.syncMessages', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.getMessage', { authRequired: true }, {
+API.v1.addRoute('chat.getMessage', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		if (!this.queryParams.msgId) {
 			return API.v1.failure('The "msgId" query parameter must be provided.');
@@ -123,7 +123,7 @@ API.v1.addRoute('chat.pinMessage', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.postMessage', { authRequired: true }, {
+API.v1.addRoute('chat.postMessage', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const messageReturn = processWebhookMessage(this.bodyParams, this.user, undefined, true)[0];
 
@@ -141,7 +141,7 @@ API.v1.addRoute('chat.postMessage', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.search', { authRequired: true }, {
+API.v1.addRoute('chat.search', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { roomId, searchText } = this.queryParams;
 		const { count } = this.getPaginationItems();
@@ -166,7 +166,7 @@ API.v1.addRoute('chat.search', { authRequired: true }, {
 // The difference between `chat.postMessage` and `chat.sendMessage` is that `chat.sendMessage` allows
 // for passing a value for `_id` and the other one doesn't. Also, `chat.sendMessage` only sends it to
 // one channel whereas the other one allows for sending to more than one channel at a time.
-API.v1.addRoute('chat.sendMessage', { authRequired: true }, {
+API.v1.addRoute('chat.sendMessage', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		if (!this.bodyParams.message) {
 			throw new Meteor.Error('error-invalid-params', 'The "message" parameter must be provided.');
@@ -182,7 +182,7 @@ API.v1.addRoute('chat.sendMessage', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.starMessage', { authRequired: true }, {
+API.v1.addRoute('chat.starMessage', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		if (!this.bodyParams.messageId || !this.bodyParams.messageId.trim()) {
 			throw new Meteor.Error('error-messageid-param-not-provided', 'The required "messageId" param is required.');
@@ -222,7 +222,7 @@ API.v1.addRoute('chat.unPinMessage', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.unStarMessage', { authRequired: true }, {
+API.v1.addRoute('chat.unStarMessage', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		if (!this.bodyParams.messageId || !this.bodyParams.messageId.trim()) {
 			throw new Meteor.Error('error-messageid-param-not-provided', 'The required "messageId" param is required.');
@@ -244,7 +244,7 @@ API.v1.addRoute('chat.unStarMessage', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.update', { authRequired: true }, {
+API.v1.addRoute('chat.update', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		check(this.bodyParams, Match.ObjectIncluding({
 			roomId: String,
@@ -276,7 +276,7 @@ API.v1.addRoute('chat.update', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.react', { authRequired: true }, {
+API.v1.addRoute('chat.react', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		if (!this.bodyParams.messageId || !this.bodyParams.messageId.trim()) {
 			throw new Meteor.Error('error-messageid-param-not-provided', 'The required "messageId" param is missing.');
@@ -300,7 +300,7 @@ API.v1.addRoute('chat.react', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.getMessageReadReceipts', { authRequired: true }, {
+API.v1.addRoute('chat.getMessageReadReceipts', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { messageId } = this.queryParams;
 		if (!messageId) {
@@ -322,7 +322,7 @@ API.v1.addRoute('chat.getMessageReadReceipts', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.reportMessage', { authRequired: true }, {
+API.v1.addRoute('chat.reportMessage', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const { messageId, description } = this.bodyParams;
 		if (!messageId) {
@@ -339,7 +339,7 @@ API.v1.addRoute('chat.reportMessage', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.ignoreUser', { authRequired: true }, {
+API.v1.addRoute('chat.ignoreUser', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { rid, userId } = this.queryParams;
 		let { ignore = true } = this.queryParams;
@@ -360,7 +360,7 @@ API.v1.addRoute('chat.ignoreUser', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.getDeletedMessages', { authRequired: true }, {
+API.v1.addRoute('chat.getDeletedMessages', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { roomId, since } = this.queryParams;
 		const { offset, count } = this.getPaginationItems();
@@ -393,7 +393,7 @@ API.v1.addRoute('chat.getDeletedMessages', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.getThreadsList', { authRequired: true }, {
+API.v1.addRoute('chat.getThreadsList', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { rid } = this.queryParams;
 		const { offset, count } = this.getPaginationItems();
@@ -430,7 +430,7 @@ API.v1.addRoute('chat.getThreadsList', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.syncThreadsList', { authRequired: true }, {
+API.v1.addRoute('chat.syncThreadsList', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { rid } = this.queryParams;
 		const { query, fields, sort } = this.parseJsonQuery();
@@ -465,7 +465,7 @@ API.v1.addRoute('chat.syncThreadsList', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.getThreadMessages', { authRequired: true }, {
+API.v1.addRoute('chat.getThreadMessages', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { tmid } = this.queryParams;
 		const { query, fields, sort } = this.parseJsonQuery();
@@ -507,7 +507,7 @@ API.v1.addRoute('chat.getThreadMessages', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.syncThreadMessages', { authRequired: true }, {
+API.v1.addRoute('chat.syncThreadMessages', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { tmid } = this.queryParams;
 		const { query, fields, sort } = this.parseJsonQuery();
@@ -546,7 +546,7 @@ API.v1.addRoute('chat.syncThreadMessages', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.followMessage', { authRequired: true }, {
+API.v1.addRoute('chat.followMessage', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const { mid } = this.bodyParams;
 
@@ -558,7 +558,7 @@ API.v1.addRoute('chat.followMessage', { authRequired: true }, {
 	},
 });
 
-API.v1.addRoute('chat.unfollowMessage', { authRequired: true }, {
+API.v1.addRoute('chat.unfollowMessage', { authRequired: true, rateLimiterOptions: false }, {
 	post() {
 		const { mid } = this.bodyParams;
 

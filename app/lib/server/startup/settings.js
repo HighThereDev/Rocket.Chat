@@ -2728,19 +2728,19 @@ settings.addGroup('Rate Limiter', function() {
 		this.add('DDP_Rate_Limit_IP_Interval_Time', 60000, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_IP_Enabled', value: true } });
 
 		this.add('DDP_Rate_Limit_User_Enabled', false, { type: 'boolean' });
-		this.add('DDP_Rate_Limit_User_Requests_Allowed', 1200, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_User_Enabled', value: true } });
+		this.add('DDP_Rate_Limit_User_Requests_Allowed', 120000, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_User_Enabled', value: true } });
 		this.add('DDP_Rate_Limit_User_Interval_Time', 60000, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_User_Enabled', value: true } });
 
 		this.add('DDP_Rate_Limit_Connection_Enabled', false, { type: 'boolean' });
-		this.add('DDP_Rate_Limit_Connection_Requests_Allowed', 600, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_Connection_Enabled', value: true } });
+		this.add('DDP_Rate_Limit_Connection_Requests_Allowed', 120000, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_Connection_Enabled', value: true } });
 		this.add('DDP_Rate_Limit_Connection_Interval_Time', 60000, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_Connection_Enabled', value: true } });
 
 		this.add('DDP_Rate_Limit_User_By_Method_Enabled', false, { type: 'boolean' });
-		this.add('DDP_Rate_Limit_User_By_Method_Requests_Allowed', 20, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_User_By_Method_Enabled', value: true } });
+		this.add('DDP_Rate_Limit_User_By_Method_Requests_Allowed', 120000, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_User_By_Method_Enabled', value: true } });
 		this.add('DDP_Rate_Limit_User_By_Method_Interval_Time', 10000, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_User_By_Method_Enabled', value: true } });
 
 		this.add('DDP_Rate_Limit_Connection_By_Method_Enabled', false, { type: 'boolean' });
-		this.add('DDP_Rate_Limit_Connection_By_Method_Requests_Allowed', 10, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_Connection_By_Method_Enabled', value: true } });
+		this.add('DDP_Rate_Limit_Connection_By_Method_Requests_Allowed', 120000, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_Connection_By_Method_Enabled', value: true } });
 		this.add('DDP_Rate_Limit_Connection_By_Method_Interval_Time', 10000, { type: 'int', enableQuery: { _id: 'DDP_Rate_Limit_Connection_By_Method_Enabled', value: true } });
 	});
 
