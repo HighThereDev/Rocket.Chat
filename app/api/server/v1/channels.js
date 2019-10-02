@@ -656,6 +656,12 @@ API.v1.addRoute('channels.messages', { authRequired: true, rateLimiterOptions: f
 API.v1.addRoute('channels.lastMessages', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const params = this.requestParams();
+
+		// Check params
+		if (typeof params.userId === 'undefined') {
+			return API.v1.failure('The userId is required');
+		}
+
 		const { offset, count } = this.getPaginationItems();
 		const { sort, fields, query } = this.parseJsonQuery();
 		const room_types = ['room_public'];
@@ -694,6 +700,12 @@ API.v1.addRoute('channels.lastMessages', { authRequired: true, rateLimiterOption
 API.v1.addRoute('channels.publicLastMessages', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const params = this.requestParams();
+		
+		// Check params
+		if (typeof params.userId === 'undefined') {
+			return API.v1.failure('The userId is required');
+		}
+
 		const { offset, count } = this.getPaginationItems();
 		const { sort, fields, query } = this.parseJsonQuery();
 		const room_types = ['room_public'];
