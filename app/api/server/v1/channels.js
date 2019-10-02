@@ -658,7 +658,7 @@ API.v1.addRoute('channels.lastMessages', { authRequired: true, rateLimiterOption
 		const params = this.requestParams();
 
 		// Check params
-		if (typeof params.userId === 'undefined') {
+		if (typeof params.userId === 'undefined' || params.userId == '') {
 			return API.v1.failure('The userId is required');
 		}
 
@@ -702,7 +702,7 @@ API.v1.addRoute('channels.publicLastMessages', { authRequired: true, rateLimiter
 		const params = this.requestParams();
 		
 		// Check params
-		if (typeof params.userId === 'undefined') {
+		if (typeof params.userId === 'undefined' || params.userId == '') {
 			return API.v1.failure('The userId is required');
 		}
 
