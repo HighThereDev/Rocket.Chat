@@ -661,17 +661,7 @@ API.v1.addRoute('channels.lastMessages', { authRequired: true, rateLimiterOption
 		const room_types = ['room_public'];
 		let look_for_rooms_ids = ['GENERAL'];
 
-		const room_cursor = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', params.userId, room_types, {
-			sort: sort || { name: 1 },
-			fields: { '_id': 1 },
-		});
-
-		const rooms = room_cursor.fetch()
-		rooms.forEach((room) => {
-			look_for_rooms_ids.push(room._id);
-		});	
-
-		let customQuery = { 'u._id': params.userId, rid: { $in: look_for_rooms_ids }, t: null }
+		let customQuery = { t: { $exists: false }, 'u._id': params.userId, rid: { $in: look_for_rooms_ids }, t: null }
 		const ourQuery = Object.assign({}, customQuery, { });
 
 		// Special check for the permissions
@@ -701,7 +691,54 @@ API.v1.addRoute('channels.lastMessages', { authRequired: true, rateLimiterOption
 	},
 });
 
-// TODO: perform tests
+API.v1.addRoute('channels.publicLastMessages', { authRequired: true, rateLimiterOptions: false }, {
+	get() {
+		const params = this.requestParams();
+		const { offset, count } = this.getPaginationItems();
+		const { sort, fields, query } = this.parseJsonQuery();
+		const room_types = ['room_public'];
+		let look_for_rooms_ids = ['GENERAL'];
+
+		const room_cursor = Rooms.findBySubscriptionTypeAndUserIdChannelType('c', params.userId, room_types, {
+			sort: sort || { name: 1 },
+			fields: { '_id': 1 },
+		});
+
+		const rooms = room_cursor.fetch()
+		rooms.forEach((room) => {
+			look_for_rooms_ids.push(room._id);
+		});	
+
+		let customQuery = { t: { $exists: false }, 'u._id': params.userId, rid: { $in: look_for_rooms_ids }, t: null }
+		const ourQuery = Object.assign({}, customQuery, { });
+
+		// Special check for the permissions
+		if (hasPermission(params.userId, 'view-joined-room') && !Subscriptions.findOneByRoomIdAndUserId(findResult._id, params.userId, { fields: { _id: 1 } })) {
+			return API.v1.unauthorized();
+		}
+		if (!hasPermission(params.userId, 'view-c-room')) {
+			return API.v1.unauthorized();
+		}
+
+		const cursor = Messages.find(ourQuery, {
+			sort: sort || { ts: -1 },
+			skip: offset,
+			limit: count,
+			fields,
+		});
+
+		const total = cursor.count();
+		const messages = cursor.fetch();
+
+		return API.v1.success({
+			messages: normalizeMessagesForUserCustomFields(messages, params.userId),
+			count: messages.length,
+			offset,
+			total,
+		});
+	},
+});
+
 API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { offset, count } = this.getPaginationItems();
@@ -724,15 +761,6 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOpti
 		});	
 
 		look_for_rooms_ids.push(feed_channel_id);
-
-		// // Type of filter (local, global and friends)
-		// params.feed_type
-		// // Geocode object 
-		// params.userGeocode
-		// // Long
-		// params.userGeocode.position.lng
-		// // Lat
-		// params.userGeocode.position.lat		
 		
 		// Get all messages for public rooms, private rooms that user join and friend messages.
 		if (params.feed_type === 'local' && userGeocode !== null) {
