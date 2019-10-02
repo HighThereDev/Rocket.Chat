@@ -518,6 +518,16 @@ export class Subscriptions extends Base {
 		return this.find(query, options);
 	}
 
+	findByUserIdsAndTypeWithoutClosed(userIds, type, options) {
+		const query = {
+			'u._id': { $in: userIds },
+			t: type,
+			open: true,
+		};
+
+		return this.find(query, options);
+	}
+
 	findByUserIdAndTypes(userId, types, options) {
 		const query = {
 			'u._id': userId,

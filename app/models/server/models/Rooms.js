@@ -738,6 +738,24 @@ export class Rooms extends Base {
 		return this.find(query, options);
 	}
 
+	findBySubscriptionTypeAndUserIdsChannelType(type, userIds, channelTypes, options) {
+		const data = Subscriptions.findByUserIdsAndTypeWithoutClosed(userIds, type, { fields: { rid: 1 } }).fetch()
+			.map((item) => item.rid);
+
+		const query = {
+			t: type,
+			_id: {
+				$in: data,
+			},
+			'customFields.channel_type' : { $exists: true },
+			'customFields.channel_type': { 
+				$in: channelTypes 
+			},
+		};
+
+		return this.find(query, options);
+	}
+
 	findByCustomFieldChannelType(channelTypes, options) {
 		const query = {
 			'customFields.channel_type' : { $exists: true },

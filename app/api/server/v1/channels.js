@@ -760,6 +760,17 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOpti
 			look_for_rooms_ids.push(room._id);
 		});	
 
+		// const friends_rooms_cursor = Rooms.findBySubscriptionTypeAndUserIdsChannelType('c', user.customFields.friend_ids, room_types, {
+		// 	sort: sort || { name: 1 },
+		// 	fields: { '_id': 1 },
+		// });
+		// const friends_rooms = friends_rooms_cursor.fetch()
+		// friends_rooms.forEach((room) => {
+		// 	if (room._id)
+		// 	look_for_rooms_ids.push(room._id);
+		// });
+
+		// Push GENERAL
 		look_for_rooms_ids.push(feed_channel_id);
 		
 		// Get all messages for public rooms, private rooms that user join and friend messages.
@@ -767,7 +778,6 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOpti
 			// Get all messages using location
 			customQuery = { t: { $exists: false }, 'customFields.loc': { $exists: true }, 'customFields.loc': { $near: { $geometry: { type: "Point", coordinates: [userGeocode.position.lng, userGeocode.position.lat] }, $maxDistance: max_distance } } }
 		} else if (params.feed_type === 'friends') {
-			// TODO: check which is our "current_user" variable
 			customQuery = { t: { $exists: false }, 'u._id': { $in: user.customFields.friend_ids } }
 		} else {
 			customQuery = { t: { $exists: false } }
