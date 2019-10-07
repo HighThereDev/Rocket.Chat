@@ -499,7 +499,7 @@ API.v1.addRoute('chat.getThreadMessages', { authRequired: true, rateLimiterOptio
 		const messages = cursor.fetch();
 
 		return API.v1.success({
-			messages: normalizeMessagesForUserCustomFields(messages),
+			messages: normalizeMessagesForUserCustomFields(messages, this.userId),
 			count: messages.length,
 			offset,
 			total,
