@@ -25,6 +25,7 @@ export function messageContainsHighlight(message, highlights) {
 }
 
 export function updateUsersSubscriptions(message, room, users) {
+	if (room != null && room._id === 'GENERAL') { return null; }
 	if (room != null) {
 		let toAll = false;
 		let toHere = false;
