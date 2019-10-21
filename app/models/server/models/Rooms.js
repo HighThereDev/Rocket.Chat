@@ -771,7 +771,21 @@ export class Rooms extends Base {
 		return this.find(query, options);
 	}
 
-	findByCustomFieldLocation(longitude, latitude, maxDistance, channelTypes, options) {
+
+	findByCustomFieldLocation(adminArea, channelTypes, options) {
+		const query = {
+			'customFields.additional_data.adminArea':{$exists:true},
+			'customFields.additional_data.adminArea':adminArea,
+			'customFields.channel_type' : { $exists: true },
+			'customFields.channel_type': { 
+				$in: channelTypes 
+			},
+		};
+
+		return this.find(query, options);
+	}
+
+	findByCustomFieldLocationGeospatial(longitude, latitude, maxDistance, channelTypes, options) {
 		const query = {
 			'customFields.loc' : { $exists: true },
 			'customFields.loc': { 
@@ -796,7 +810,29 @@ export class Rooms extends Base {
 		return this.find(query, options);
 	}
 
-	findBySubscriptionTypeAndCustomFieldLocation(type, userId, longitude, latitude, maxDistance, channelTypes, options) {
+
+	findBySubscriptionTypeAndCustomFieldLocation(type, userId, adminArea, channelTypes, options) {
+		const data = Subscriptions.findByUserIdAndTypeWithoutClosed(userId, type, { fields: { rid: 1 } }).fetch()
+			.map((item) => item.rid);
+
+		const query = {
+			t: type,
+			_id: {
+				$in: data,
+			},
+			'customFields.additional_data.adminArea':{$exists:true},
+			'customFields.additional_data.adminArea':adminArea,
+			'customFields.channel_type' : { $exists: true },
+			'customFields.channel_type': { 
+				$in: channelTypes 
+			},
+		};
+
+		return this.find(query, options);
+	}
+
+
+	findBySubscriptionTypeAndCustomFieldLocationGeospatial(type, userId, longitude, latitude, maxDistance, channelTypes, options) {
 		const data = Subscriptions.findByUserIdAndTypeWithoutClosed(userId, type, { fields: { rid: 1 } }).fetch()
 			.map((item) => item.rid);
 
@@ -872,12 +908,18 @@ export class Rooms extends Base {
 		return allRoomIds;
 	}
 
-	findLocalList(sort, params, maxDistance, userId) {
+	findLocalList(sort, userGeocode, maxDistance, userId) {
 		let allRoomIds = [];
 		let roomIds = [];
+		let allRoomIds = [];
+
+		//simple check
+		if(typeof userGeocode.adminArea === 'undefined' || userGeocode.adminArea == null || userGeocode.adminArea == ""){
+			return allRoomIds;
+		}
 
 		// 1- Public rooms regardless if user joined or not that are NEAR the user location
-		roomIds = this.findByCustomFieldLocation(params.user_lng, params.user_lat, maxDistance, ['room_public'], {
+		roomIds = this.findByCustomFieldLocation(userGeocode.adminArea, ['room_public'], {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id);
@@ -886,7 +928,7 @@ export class Rooms extends Base {
 		});
 
 		// 2- Private rooms where the user has joined that are NEAR the user location
-		roomIds = this.findBySubscriptionTypeAndCustomFieldLocation('c', userId, params.user_lng, params.user_lat, maxDistance, ['room_private'], {
+		roomIds = this.findBySubscriptionTypeAndCustomFieldLocation('c', userId, userGeocode.adminArea, ['room_private'], {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id);

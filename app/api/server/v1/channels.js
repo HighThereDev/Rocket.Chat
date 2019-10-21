@@ -542,15 +542,15 @@ API.v1.addRoute('channels.list.joined.direct', { authRequired: true, rateLimiter
 API.v1.addRoute('channels.list.room', { authRequired: true, rateLimiterOptions: false }, {
 	get() {
 		const { offset, count } = this.getPaginationItems();
-		const { sort, fields } = this.parseJsonQuery();
+		const { userGeocode, sort, fields } = this.parseJsonQuery();
 		const params = this.requestParams();
-		const maxDistance = 160.934 * 1000;
+		//const maxDistance = 160.934 * 1000;
 		let allRoomIds = [];
 
 		if (params.type == 'GlobalList') {
 			allRoomIds = Rooms.findGlobalList(sort, this.userId);
-		} else if (params.type == 'LocalList') {
-			allRoomIds = Rooms.findLocalList(sort, params, maxDistance, this.userId);
+		} else if (params.type == 'LocalList'  && userGeocode !== null) {
+			allRoomIds = Rooms.findLocalList(sort, userGeocode, maxDistance, this.userId);
 		} else if (params.type == 'FriendsDisplay') {
 			const user = Users.findOneById(this.userId);
 			allRoomIds = Rooms.findFriendsDisplay(sort, this.userId, user.customFields.friend_ids);
@@ -755,7 +755,7 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOpti
 	get() {
 		const { offset, count } = this.getPaginationItems();
 		const { userGeocode, sort, fields, query } = this.parseJsonQuery();
-		const max_distance = 160.934 * 1000;
+		//const max_distance = 160.934 * 1000;
 		const feed_channel_id = 'GENERAL';
 		let look_for_rooms_ids = [];
 		const user = Users.findOneById(this.userId);
@@ -781,24 +781,8 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOpti
 			customQuery = { 
 							t: { $exists: false }, 
 							'customFields.additional_data.adminArea':{$exists:true},
-							'customFields.additional_data.adminArea':userGeocode.adminArea,
-							'customFields.loc': { $exists: true }, 
-							'customFields.loc': { $near: { 
-															$geometry: { 
-																type: "Point", 
-																coordinates: [userGeocode.position.lng, userGeocode.position.lat] 
-															}, 
-												  		    $maxDistance: max_distance 
-												  		} 
-												}
+							'customFields.additional_data.adminArea':userGeocode.adminArea
 						}
-		} else if (params.feed_type === 'geospatial' && userGeocode !== null) {
-			//FOR TESTING,  remove later
-			customQuery = { t: { $exists: false }, 'customFields.loc': { $exists: true }, 'customFields.loc': { $near: { $geometry: { type: "Point", coordinates: [userGeocode.position.lng, userGeocode.position.lat] }, $maxDistance: max_distance } } }
-		} else if (params.feed_type === 'only_area' && userGeocode !== null) {
-			//FOR TESTING,  remove later
-			customQuery = { t: { $exists: false }, 'customFields.additional_data.adminArea':{$exists:true},
-'customFields.additional_data.adminArea': userGeocode.adminArea}
 		} else if (params.feed_type === 'friends') {
 			// TODO: check which is our "current_user" variable
 			customQuery = { t: { $exists: false }, 'u._id': { $in: user.customFields.friend_ids } }
@@ -806,7 +790,16 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOpti
 			customQuery = { t: { $exists: false } }
 		}
 
-
+		/*
+			else if (params.feed_type === 'geospatial' && userGeocode !== null) {
+						//FOR TESTING,  remove later
+						customQuery = { t: { $exists: false }, 'customFields.loc': { $exists: true }, 'customFields.loc': { $near: { $geometry: { type: "Point", coordinates: [userGeocode.position.lng, userGeocode.position.lat] }, $maxDistance: max_distance } } }
+					} else if (params.feed_type === 'only_area' && userGeocode !== null) {
+						//FOR TESTING,  remove later
+						customQuery = { t: { $exists: false }, 'customFields.additional_data.adminArea':{$exists:true},
+			'customFields.additional_data.adminArea': userGeocode.adminArea}
+					} 
+		*/
 
 		const ourQuery = Object.assign({}, customQuery, { rid: { $in: look_for_rooms_ids } });
 
