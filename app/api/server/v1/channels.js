@@ -774,16 +774,39 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOpti
 
 		look_for_rooms_ids.push(feed_channel_id);
 		
+
 		// Get all messages for public rooms, private rooms that user join and friend messages.
 		if (params.feed_type === 'local' && userGeocode !== null) {
-			// Get all messages using location
+			// Get all messages using near coordinates + adminArea
+			customQuery = { 
+							t: { $exists: false }, 
+							'customFields.additional_data.adminArea':{$exists:true},
+							'customFields.additional_data.adminArea':userGeocode.adminArea,
+							'customFields.loc': { $exists: true }, 
+							'customFields.loc': { $near: { 
+															$geometry: { 
+																type: "Point", 
+																coordinates: [userGeocode.position.lng, userGeocode.position.lat] 
+															}, 
+												  		    $maxDistance: max_distance 
+												  		} 
+												}
+						}
+		} else if (params.feed_type === 'geospatial' && userGeocode !== null) {
+			//FOR TESTING,  remove later
 			customQuery = { t: { $exists: false }, 'customFields.loc': { $exists: true }, 'customFields.loc': { $near: { $geometry: { type: "Point", coordinates: [userGeocode.position.lng, userGeocode.position.lat] }, $maxDistance: max_distance } } }
+		} else if (params.feed_type === 'only_area' && userGeocode !== null) {
+			//FOR TESTING,  remove later
+			customQuery = { t: { $exists: false }, 'customFields.additional_data.adminArea':{$exists:true},
+'customFields.additional_data.adminArea': userGeocode.adminArea}
 		} else if (params.feed_type === 'friends') {
 			// TODO: check which is our "current_user" variable
 			customQuery = { t: { $exists: false }, 'u._id': { $in: user.customFields.friend_ids } }
 		} else {
 			customQuery = { t: { $exists: false } }
 		}
+
+
 
 		const ourQuery = Object.assign({}, customQuery, { rid: { $in: look_for_rooms_ids } });
 

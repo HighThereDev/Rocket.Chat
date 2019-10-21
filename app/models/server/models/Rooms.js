@@ -22,6 +22,14 @@ export class Rooms extends Base {
 
 		// discussions
 		this.tryEnsureIndex({ prid: 1 }, { sparse: true });
+
+		//Feeds&Rooms
+		this.tryEnsureIndex({ 'customFields.loc': '2dsphere' });
+		this.tryEnsureIndex({ 'customFields.additional_data.countryCode': 1 });
+		this.tryEnsureIndex({ 'customFields.additional_data.locality': 1 });
+		this.tryEnsureIndex({ 'customFields.additional_data.adminArea': 1 });
+		this.tryEnsureIndex({ 'customFields.channel_type': 1 });
+
 	}
 
 	findOneByIdOrName(_idOrName, options) {
