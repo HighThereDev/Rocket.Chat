@@ -788,13 +788,11 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOpti
 			if (local_filter !== null && local_filter_values.length > 0) {
 				customQuery = {
 					...customQuery,
-					[`customFields.additional_data.${ local_filter }`]: { $exists: true },
 					[`customFields.additional_data.${ local_filter }`]: { $in: local_filter_values },
 				};
 			} else if (userGeocode !== null) {
 				customQuery = {
 					...customQuery,
-					'customFields.additional_data.adminArea' : { $exists: true },
 					'customFields.additional_data.adminArea': userGeocode.adminArea,
 				};
 			}
@@ -890,7 +888,6 @@ API.v1.addRoute('channels.messages.getLocalFilter', { authRequired: true, rateLi
 				const message_count_cursor = Messages.find({
 					rid: { $in: look_for_rooms_ids },
 					t: { $exists: false },
-					[`customFields.additional_data.${ filter.prop }`]: { $exists: true },
 					[`customFields.additional_data.${ filter.prop }`]: { $in: filter_values },
 				});
 				const message_count = message_count_cursor.count();
@@ -910,7 +907,6 @@ API.v1.addRoute('channels.messages.getLocalFilter', { authRequired: true, rateLi
 			const message_count_cursor = Messages.find({
 				rid: { $in: look_for_rooms_ids },
 				t: { $exists: false },
-				[`customFields.additional_data.adminArea`]: { $exists: true },
 				[`customFields.additional_data.adminArea`]: userGeocode.adminArea,
 			});
 			const message_count = message_count_cursor.count();
@@ -928,7 +924,6 @@ API.v1.addRoute('channels.messages.getLocalFilter', { authRequired: true, rateLi
 			const message_count_cursor = Messages.find({
 				rid: { $in: look_for_rooms_ids },
 				t: { $exists: false },
-				[`customFields.additional_data.countryCode`]: { $exists: true },
 				[`customFields.additional_data.countryCode`]: userGeocode.countryCode,
 			});
 			const message_count = message_count_cursor.count();
@@ -1007,7 +1002,6 @@ API.v1.addRoute('channels.messages.getLocalFilterRooms', { authRequired: true, r
 				const message_count_cursor = Rooms.find({
 					rid: { $in: look_for_rooms_ids },
 					t: { $exists: false },
-					[`customFields.additional_data.${ filter.prop }`]: { $exists: true },
 					[`customFields.additional_data.${ filter.prop }`]: { $in: filter_values },
 				});
 				const message_count = message_count_cursor.count();
@@ -1028,7 +1022,6 @@ API.v1.addRoute('channels.messages.getLocalFilterRooms', { authRequired: true, r
 			const message_count_cursor = Rooms.find({
 				rid: { $in: look_for_rooms_ids },
 				t: { $exists: false },
-				[`customFields.additional_data.adminArea`]: { $exists: true },
 				[`customFields.additional_data.adminArea`]: userGeocode.adminArea,
 			});
 			const message_count = message_count_cursor.count();
@@ -1048,7 +1041,6 @@ API.v1.addRoute('channels.messages.getLocalFilterRooms', { authRequired: true, r
 			const message_count_cursor = Rooms.find({
 				rid: { $in: look_for_rooms_ids },
 				t: { $exists: false },
-				[`customFields.additional_data.countryCode`]: { $exists: true },
 				[`customFields.additional_data.countryCode`]: userGeocode.countryCode,
 			});
 			const message_count = message_count_cursor.count();

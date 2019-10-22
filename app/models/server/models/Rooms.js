@@ -24,11 +24,15 @@ export class Rooms extends Base {
 		this.tryEnsureIndex({ prid: 1 }, { sparse: true });
 
 		//Feeds&Rooms
+		this.tryEnsureIndex({ 'customFields': 1 }, { sparse: 1 });
 		this.tryEnsureIndex({ 'customFields.loc': '2dsphere' });
-		this.tryEnsureIndex({ 'customFields.additional_data.countryCode': 1 });
-		this.tryEnsureIndex({ 'customFields.additional_data.locality': 1 });
-		this.tryEnsureIndex({ 'customFields.additional_data.adminArea': 1 });
+		this.tryEnsureIndex({ 'customFields.additional_data.subLocality': 1 }, { sparse: 1 });
+		this.tryEnsureIndex({ 'customFields.additional_data.subAdminArea': 1 }, { sparse: 1 });
+		this.tryEnsureIndex({ 'customFields.additional_data.locality': 1 }, { sparse: 1 });
+		this.tryEnsureIndex({ 'customFields.additional_data.adminArea': 1 }, { sparse: 1 });
+		this.tryEnsureIndex({ 'customFields.additional_data.countryCode': 1 }, { sparse: 1 });
 		this.tryEnsureIndex({ 'customFields.channel_type': 1 });
+
 
 	}
 
@@ -784,13 +788,11 @@ export class Rooms extends Base {
 		if (local_filter !== null && local_filter_values.length > 0) {
 			customQuery = {
 				...customQuery,
-				[`customFields.additional_data.${ local_filter }`]: { $exists: true },
 				[`customFields.additional_data.${ local_filter }`]: { $in: local_filter_values },
 			};
 		} else if (userGeocode !== null) {
 			customQuery = {
 				...customQuery,
-				'customFields.additional_data.adminArea':{$exists:true},
 				'customFields.additional_data.adminArea': adminArea,
 			};
 		}
@@ -845,13 +847,11 @@ export class Rooms extends Base {
 		if (local_filter !== null && local_filter_values.length > 0) {
 			customQuery = {
 				...customQuery,
-				[`customFields.additional_data.${ local_filter }`]: { $exists: true },
 				[`customFields.additional_data.${ local_filter }`]: { $in: local_filter_values },
 			};
 		} else if (userGeocode !== null) {
 			customQuery = {
 				...customQuery,
-				'customFields.additional_data.adminArea':{$exists:true},
 				'customFields.additional_data.adminArea': adminArea,
 			};
 		}

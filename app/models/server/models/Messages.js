@@ -34,13 +34,13 @@ export class Messages extends Base {
 		this.tryEnsureIndex({ 'navigation.token': 1 }, { sparse: true });
 
 		//Feeds&Rooms
+		this.tryEnsureIndex({ 'customFields': 1 }, { sparse: 1 });
 		this.tryEnsureIndex({ 'customFields.loc': '2dsphere' });
-		this.tryEnsureIndex({ 'customFields.additional_data.countryCode': 1 });
-		this.tryEnsureIndex({ 'customFields.additional_data.locality': 1 });
-		this.tryEnsureIndex({ 'customFields.additional_data.adminArea': 1 });
-
-
-
+		this.tryEnsureIndex({ 'customFields.additional_data.subLocality': 1 }, { sparse: 1 });
+		this.tryEnsureIndex({ 'customFields.additional_data.subAdminArea': 1 }, { sparse: 1 });
+		this.tryEnsureIndex({ 'customFields.additional_data.locality': 1 }, { sparse: 1 });
+		this.tryEnsureIndex({ 'customFields.additional_data.adminArea': 1 }, { sparse: 1 });
+		this.tryEnsureIndex({ 'customFields.additional_data.countryCode': 1 }, { sparse: 1 });
 
 	}
 
