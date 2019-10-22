@@ -835,7 +835,7 @@ API.v1.addRoute('channels.messages.getLocalFilter', { authRequired: true, rateLi
 		const user = Users.findOneById(this.userId);
 		const room_types = ['room_private', 'room_public'];
 		const params = this.requestParams();
-		const { min_msgs: MIN_MESSAGES = 500 } = params || {};
+		const { min_msgs: MIN_MESSAGES = 100 } = params || {}; //TO DO: move this to an env var
 		const filters = [
 			{ prop: 'subLocality', radius: 15 },
 			{ prop: 'subAdminArea', radius: 15 },
@@ -955,7 +955,7 @@ API.v1.addRoute('channels.messages.getLocalFilterRooms', { authRequired: true, r
 		const user = Users.findOneById(this.userId);
 		const room_types = ['room_private', 'room_public'];
 		const params = this.requestParams();
-		const { min_msgs: MIN_MESSAGES = 500 } = params || {};
+		const { min_msgs: MIN_MESSAGES = 100 } = params || {}; //TO DO: move this to an env var
 		const filters = [
 			{ prop: 'subLocality', radius: 15 },
 			{ prop: 'subAdminArea', radius: 15 },
