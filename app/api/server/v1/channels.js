@@ -793,7 +793,12 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOpti
 				};
 			}
 		} else if (feed_type === 'friends') {
-			// TODO: check which is our "current_user" variable
+			//add own user ID to return own messages
+			if (typeof user.customFields.friend_ids === 'undefined' || user.customFields.friend_ids === null) {
+				user.customFields.friend_ids = [];
+			}
+
+			user.customFields.friend_ids.push(this.userId);
 			customQuery = {
 				...customQuery,
 				'u._id': { $in: user.customFields.friend_ids },
