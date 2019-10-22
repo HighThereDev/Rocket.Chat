@@ -772,17 +772,30 @@ export class Rooms extends Base {
 	}
 
 
-	findByCustomFieldLocation(adminArea, channelTypes, options) {
-		const query = {
-			'customFields.additional_data.adminArea':{$exists:true},
-			'customFields.additional_data.adminArea':adminArea,
+	findByCustomFieldLocation(adminArea, channelTypes, local_filter,local_filter_values,options) {
+
+		const customQuery = {
 			'customFields.channel_type' : { $exists: true },
 			'customFields.channel_type': { 
 				$in: channelTypes 
 			},
 		};
 
-		return this.find(query, options);
+		if (local_filter !== null && local_filter_values.length > 0) {
+			customQuery = {
+				...customQuery,
+				[`customFields.additional_data.${ local_filter }`]: { $exists: true },
+				[`customFields.additional_data.${ local_filter }`]: { $in: local_filter_values },
+			};
+		} else if (userGeocode !== null) {
+			customQuery = {
+				...customQuery,
+				'customFields.additional_data.adminArea':{$exists:true},
+				'customFields.additional_data.adminArea': adminArea,
+			};
+		}
+
+		return this.find(customQuery, options);
 	}
 
 	findByCustomFieldLocationGeospatial(longitude, latitude, maxDistance, channelTypes, options) {
@@ -811,22 +824,38 @@ export class Rooms extends Base {
 	}
 
 
-	findBySubscriptionTypeAndCustomFieldLocation(type, userId, adminArea, channelTypes, options) {
+	findBySubscriptionTypeAndCustomFieldLocation(type, userId, adminArea, channelTypes,local_filter,local_filter_values, options) {
+
 		const data = Subscriptions.findByUserIdAndTypeWithoutClosed(userId, type, { fields: { rid: 1 } }).fetch()
 			.map((item) => item.rid);
 
-		const query = {
+
+		const customQuery = {
 			t: type,
 			_id: {
 				$in: data,
 			},
-			'customFields.additional_data.adminArea':{$exists:true},
-			'customFields.additional_data.adminArea':adminArea,
 			'customFields.channel_type' : { $exists: true },
 			'customFields.channel_type': { 
 				$in: channelTypes 
 			},
 		};
+
+
+		if (local_filter !== null && local_filter_values.length > 0) {
+			customQuery = {
+				...customQuery,
+				[`customFields.additional_data.${ local_filter }`]: { $exists: true },
+				[`customFields.additional_data.${ local_filter }`]: { $in: local_filter_values },
+			};
+		} else if (userGeocode !== null) {
+			customQuery = {
+				...customQuery,
+				'customFields.additional_data.adminArea':{$exists:true},
+				'customFields.additional_data.adminArea': adminArea,
+			};
+		}
+
 
 		return this.find(query, options);
 	}
@@ -908,7 +937,7 @@ export class Rooms extends Base {
 		return allRoomIds;
 	}
 
-	findLocalList(sort, userGeocode, maxDistance, userId) {
+	findLocalList(sort, userGeocode, userId, local_filter,local_filter_values) {
 		let allRoomIds = [];
 		let roomIds = [];
 		let allRoomIds = [];
@@ -919,7 +948,7 @@ export class Rooms extends Base {
 		}
 
 		// 1- Public rooms regardless if user joined or not that are NEAR the user location
-		roomIds = this.findByCustomFieldLocation(userGeocode.adminArea, ['room_public'], {
+		roomIds = this.findByCustomFieldLocation(userGeocode.adminArea, ['room_public'],local_filter,local_filter_values, {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id);
@@ -928,7 +957,8 @@ export class Rooms extends Base {
 		});
 
 		// 2- Private rooms where the user has joined that are NEAR the user location
-		roomIds = this.findBySubscriptionTypeAndCustomFieldLocation('c', userId, userGeocode.adminArea, ['room_private'], {
+
+		roomIds = this.findBySubscriptionTypeAndCustomFieldLocation('c', userId, userGeocode.adminArea,['room_private'],local_filter,local_filter_values, {
 			sort: sort || { name: 1 },
 			fields: { '_id': 1 },
 		}).fetch().map((item) => item._id);

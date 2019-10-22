@@ -543,14 +543,18 @@ API.v1.addRoute('channels.list.room', { authRequired: true, rateLimiterOptions: 
 	get() {
 		const { offset, count } = this.getPaginationItems();
 		const { userGeocode, sort, fields } = this.parseJsonQuery();
+
 		const params = this.requestParams();
-		//const maxDistance = 160.934 * 1000;
+		const { feed_type='global', local_filter=null, local_filter_values=[] } = params || {};
+
 		let allRoomIds = [];
 
 		if (params.type == 'GlobalList') {
 			allRoomIds = Rooms.findGlobalList(sort, this.userId);
 		} else if (params.type == 'LocalList'  && userGeocode !== null) {
-			allRoomIds = Rooms.findLocalList(sort, userGeocode, maxDistance, this.userId);
+
+			allRoomIds = Rooms.findLocalList(sort, userGeocode, this.userId,local_filter,local_filter_values);
+
 		} else if (params.type == 'FriendsDisplay') {
 			const user = Users.findOneById(this.userId);
 			allRoomIds = Rooms.findFriendsDisplay(sort, this.userId, user.customFields.friend_ids);
@@ -784,11 +788,13 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOpti
 			if (local_filter !== null && local_filter_values.length > 0) {
 				customQuery = {
 					...customQuery,
+					[`customFields.additional_data.${ local_filter }`]: { $exists: true },
 					[`customFields.additional_data.${ local_filter }`]: { $in: local_filter_values },
 				};
 			} else if (userGeocode !== null) {
 				customQuery = {
 					...customQuery,
+					'customFields.additional_data.adminArea' : { $exists: true },
 					'customFields.additional_data.adminArea': userGeocode.adminArea,
 				};
 			}
@@ -831,7 +837,7 @@ API.v1.addRoute('channels.messages.getLocalFilter', { authRequired: true, rateLi
 		const user = Users.findOneById(this.userId);
 		const room_types = ['room_private', 'room_public'];
 		const params = this.requestParams();
-		const { adminArea = null, country = null, min_msgs: MIN_MESSAGES = 500 } = params || {};
+		const { min_msgs: MIN_MESSAGES = 500 } = params || {};
 		const filters = [
 			{ prop: 'subLocality', radius: 15 },
 			{ prop: 'subAdminArea', radius: 15 },
@@ -899,35 +905,35 @@ API.v1.addRoute('channels.messages.getLocalFilter', { authRequired: true, rateLi
 			}
 		}
 
-		if (!selected_filter && adminArea) {
+		if (!selected_filter && userGeocode.adminArea) {
 			const message_count_cursor = Messages.find({
 				rid: { $in: look_for_rooms_ids },
 				t: { $exists: false },
-				[`customFields.additional_data.adminArea`]: adminArea,
+				[`customFields.additional_data.adminArea`]: userGeocode.adminArea,
 			});
 			const message_count = message_count_cursor.count();
 
 			if (message_count >= parseInt(MIN_MESSAGES)) {
 				selected_filter = {
 					prop: 'adminArea',
-					values: [adminArea],
+					values: [userGeocode.adminArea],
 					messages: message_count,
 				};
 			}
 
 		}
-		if (!selected_filter && country) {
+		if (!selected_filter && userGeocode.countryCode) {
 			const message_count_cursor = Messages.find({
 				rid: { $in: look_for_rooms_ids },
 				t: { $exists: false },
-				[`customFields.additional_data.country`]: country,
+				[`customFields.additional_data.countryCode`]: userGeocode.countryCode,
 			});
 			const message_count = message_count_cursor.count();
 
 			if (message_count >= parseInt(MIN_MESSAGES)) {
 				selected_filter = {
-					prop: 'country',
-					values: [country],
+					prop: 'countryCode',
+					values: [userGeocode.countryCode],
 					messages: message_count,
 				};
 			}
@@ -943,6 +949,122 @@ API.v1.addRoute('channels.messages.getLocalFilter', { authRequired: true, rateLi
 	},
 });
 
+//Similar usage than Feeds messages but counting Rooms
+API.v1.addRoute('channels.messages.getLocalFilterRooms', { authRequired: true, rateLimiterOptions: false }, {
+	get() {
+		const { userGeocode, sort, fields, query } = this.parseJsonQuery();
+		//const feed_channel_id = 'GENERAL';
+		const user = Users.findOneById(this.userId);
+		const room_types = ['room_private', 'room_public'];
+		const params = this.requestParams();
+		const { min_msgs: MIN_MESSAGES = 500 } = params || {};
+		const filters = [
+			{ prop: 'subLocality', radius: 15 },
+			{ prop: 'subAdminArea', radius: 15 },
+			{ prop: 'locality', radius: 20 },
+		];
+
+
+		let look_for_rooms_ids = [];
+		look_for_rooms_ids = Rooms.findGlobalList(sort, this.userId);
+
+		//look_for_rooms_ids.push(feed_channel_id);
+
+
+		let selected_filter = null;
+
+		for (const filter of filters) {
+			const queryFilter = {
+				rid: { $in: look_for_rooms_ids },
+				t: { $exists: false },
+				'customFields.loc': { $exists: true },
+				'customFields.loc': {
+					$near: {
+						$geometry: {
+							type: "Point",
+							coordinates: [userGeocode.position.lng, userGeocode.position.lat],
+						},
+						$maxDistance: filter.radius * 1609,
+					},
+				},
+			};
+
+			//TO-DO: change variable names "message" for "room"
+			const messagesRaw = Rooms.model.rawCollection();
+			const distinct = Meteor.wrapAsync(messagesRaw.distinct, messagesRaw);
+
+			let filter_values = distinct(`customFields.additional_data.${ filter.prop }`, queryFilter);
+			if (filter_values && filter_values.length > 0) {
+				filter_values = filter_values.filter((v) => v && v.length > 0);
+			}
+
+
+			//TO-DO: change variable names "message" for "room"
+			if (filter_values && filter_values.length > 0) {
+				const message_count_cursor = Rooms.find({
+					rid: { $in: look_for_rooms_ids },
+					t: { $exists: false },
+					[`customFields.additional_data.${ filter.prop }`]: { $in: filter_values },
+				});
+				const message_count = message_count_cursor.count();
+
+				if (message_count >= parseInt(MIN_MESSAGES)) {
+					selected_filter = {
+						...filter,
+						values: filter_values,
+						messages: message_count,
+					};
+					break;
+				}
+			}
+		}
+
+		//TO-DO: change variable names "message" for "room"
+		if (!selected_filter && userGeocode.adminArea) {
+			const message_count_cursor = Rooms.find({
+				rid: { $in: look_for_rooms_ids },
+				t: { $exists: false },
+				[`customFields.additional_data.adminArea`]: userGeocode.adminArea,
+			});
+			const message_count = message_count_cursor.count();
+
+			if (message_count >= parseInt(MIN_MESSAGES)) {
+				selected_filter = {
+					prop: 'adminArea',
+					values: [userGeocode.adminArea],
+					messages: message_count,
+				};
+			}
+
+		}
+
+		//TO-DO: change variable names "message" for "room"
+		if (!selected_filter && userGeocode.countryCode) {
+			const message_count_cursor = Rooms.find({
+				rid: { $in: look_for_rooms_ids },
+				t: { $exists: false },
+				[`customFields.additional_data.countryCode`]: userGeocode.countryCode,
+			});
+			const message_count = message_count_cursor.count();
+
+			if (message_count >= parseInt(MIN_MESSAGES)) {
+				selected_filter = {
+					prop: 'countryCode',
+					values: [userGeocode.countryCode],
+					messages: message_count,
+				};
+			}
+		}
+
+		return API.v1.success({
+			filter: selected_filter ? {
+				field: selected_filter.prop,
+				values: selected_filter.values,
+				messages: selected_filter.messages,
+			} : null,
+		});
+	},
+});
 
 // TODO: CACHE: I dont like this method( functionality and how we implemented ) its very expensive
 // TODO check if this code is better or not
