@@ -911,7 +911,6 @@ export class Rooms extends Base {
 	findLocalList(sort, userGeocode, maxDistance, userId) {
 		let allRoomIds = [];
 		let roomIds = [];
-		let allRoomIds = [];
 
 		//simple check
 		if(typeof userGeocode.adminArea === 'undefined' || userGeocode.adminArea == null || userGeocode.adminArea == ""){
