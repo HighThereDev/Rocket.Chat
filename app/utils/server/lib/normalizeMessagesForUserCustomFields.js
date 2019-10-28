@@ -4,7 +4,7 @@ import { settings } from '../../../settings/server';
 const filterStarred = (message, uid) => {
 	// only return starred field if user has it starred
 	if (message.starred && Array.isArray(message.starred)) {
-		message.starred = message.starred.filter((star) => star._id === uid);
+		//message.starred = message.starred.filter((star) => star._id === uid);
 	}
 	return message;
 };
