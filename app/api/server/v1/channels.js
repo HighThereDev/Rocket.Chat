@@ -557,6 +557,15 @@ API.v1.addRoute('channels.list.room', { authRequired: true, rateLimiterOptions: 
 
 		} else if (params.type == 'FriendsDisplay') {
 			const user = Users.findOneById(this.userId);
+
+			//add customFields fallback for users without any friends
+			if (typeof user.customFields === 'undefined' || user.customFields === null) {
+				user.customFields = {};
+			}
+			if (typeof user.customFields.friend_ids === 'undefined' || user.customFields.friend_ids === null) {
+				user.customFields.friend_ids = [];
+			}
+
 			allRoomIds = Rooms.findFriendsDisplay(sort, this.userId, user.customFields.friend_ids);
 		} 
 
@@ -797,6 +806,11 @@ API.v1.addRoute('channels.messages.feeds', { authRequired: true, rateLimiterOpti
 				};
 			}
 		} else if (feed_type === 'friends') {
+			//add customFields fallback for users without any friends
+			if (typeof user.customFields === 'undefined' || user.customFields === null) {
+				user.customFields = {};
+			}
+
 			//add own user ID to return own messages
 			if (typeof user.customFields.friend_ids === 'undefined' || user.customFields.friend_ids === null) {
 				user.customFields.friend_ids = [];
