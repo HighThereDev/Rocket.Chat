@@ -88,13 +88,13 @@ export const normalizeMessagesForUserCustomFields = (messages, uid, populate=tru
 			}
 		});
 
-		return messages.map((message) => filterStarred(message, uid));
+		return messages;//messages.map((message) => filterStarred(message, uid));
 	}
 
 	const usernames = new Set();
 
 	messages.forEach((message) => {
-		message = filterStarred(message, uid);
+		//message = filterStarred(message, uid);
 
 		if (message.customFields !== undefined) {
 			if (message.customFields.loc !== undefined) {
