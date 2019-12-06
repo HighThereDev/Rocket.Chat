@@ -150,6 +150,10 @@ export class Messages extends Base {
 
 		return this.find(query, options).count();
 	}
+	
+	findByIds(messageIds, options) {
+		return this.find({ _id: { $in: [].concat(messageIds) } }, options);
+	}
 
 	// FIND
 	findByMention(username, options) {

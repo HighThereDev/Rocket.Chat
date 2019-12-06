@@ -567,7 +567,7 @@ API.v1.addRoute('channels.list.room', { authRequired: true, rateLimiterOptions: 
 			}
 
 			allRoomIds = Rooms.findFriendsDisplay(sort, this.userId, user.customFields.friend_ids);
-		} 
+		}
 
 		// get all rooms from allRoomsIds var
 		const cursor = Rooms.findByIds(allRoomIds, {
@@ -732,7 +732,7 @@ API.v1.addRoute('channels.publicLastMessages', { authRequired: true, rateLimiter
 		const rooms = room_cursor.fetch()
 		rooms.forEach((room) => {
 			look_for_rooms_ids.push(room._id);
-		});	
+		});
 
 		let customQuery = { t: { $exists: false }, 'u._id': params.userId, rid: { $in: look_for_rooms_ids }, t: null }
 		const ourQuery = Object.assign({}, customQuery, { });
