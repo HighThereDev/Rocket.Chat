@@ -12,17 +12,31 @@ const filterStarred = (message, uid) => {
 // TODO: we should let clients get user names on demand instead of doing this
 const _id = (doc={}) => String(doc.id || doc._id);
 
-const cleanSubMessage = ({ _id, attachments, customFields, mentions, replies, msg, u, ts, _updatedAt}) => ({
-	_id,
-	...(attachments ? { attachments } : {}),
-	...(customFields ? { customFields } : {}),
-	...(mentions ? { mentions } : {}),
-	...(replies ? { replies } : {}),
-	msg,
-	u,
-	ts,
-	_updatedAt,
-});
+const cleanSubMessage = ({ _id, attachments, customFields, mentions, replies, msg, u, ts, _updatedAt}) => {
+
+	//clean sensitive data
+	if (customFields !== undefined) {
+		if (customFields.loc !== undefined) {
+			customFields.loc = null;
+		}
+
+		if (customFields.additional_data !== undefined) {
+			customFields.additional_data = null;
+		}
+	}
+
+	return {
+		_id,
+		...(attachments ? { attachments } : {}),
+		...(customFields ? { customFields } : {}),
+		...(mentions ? { mentions } : {}),
+		...(replies ? { replies } : {}),
+		msg,
+		u,
+		ts,
+		_updatedAt,
+	}
+};
 
 export const normalizeMessagesForUserCustomFields = (messages, uid, populate=true) => {
 	console.log(`normalizing messages for user custom fields`);
