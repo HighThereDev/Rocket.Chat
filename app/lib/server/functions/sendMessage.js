@@ -6,8 +6,6 @@ import { callbacks } from '../../../callbacks';
 import { Messages } from '../../../models';
 import { Apps } from '../../../apps/server';
 import { Markdown } from '../../../markdown/server';
-import { normalizeMessagesForUser } from '../../../utils/server/lib/normalizeMessagesForUser';
-
 
 /**
  * IMPORTANT
@@ -206,10 +204,6 @@ export const sendMessage = function(user, message, room, upsert = false) {
 			}
 			message._id = Messages.insert(message);
 		}
-
-		//#YOLO
-		const message = normalizeMessagesForUser([message], user._id);
-
 
 		if (Apps && Apps.isLoaded()) {
 			// This returns a promise, but it won't mutate anything about the message
