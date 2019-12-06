@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import { settings } from '../../../app/settings';
 import { Users, Messages } from '../../../app/models';
 import { msgStream } from '../../../app/lib/server';
-import { normalizeMessagesForUser } from '../../../app/utils/server/lib/normalizeMessagesForUserCustomFields';
+import { normalizeMessagesForUserCustomFields } from '../../../app/utils/server/lib/normalizeMessagesForUserCustomFields';
 
 
 import { MY_MESSAGE } from '.';
