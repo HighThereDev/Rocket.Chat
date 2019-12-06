@@ -3,6 +3,8 @@ import { Meteor } from 'meteor/meteor';
 import { settings } from '../../../app/settings';
 import { Users, Messages } from '../../../app/models';
 import { msgStream } from '../../../app/lib/server';
+import { normalizeMessagesForUser } from '../../../app/utils/server/lib/normalizeMessagesForUserCustomFields';
+
 
 import { MY_MESSAGE } from '.';
 
@@ -22,8 +24,11 @@ Meteor.startup(function() {
 					mention.name = user && user.name;
 				});
 			}
-			msgStream.mymessage(MY_MESSAGE, record);
-			msgStream.emitWithoutBroadcast(record.rid, record);
+
+
+			const [_record] = normalizeMessagesForUserCustomFields([record], record.u._id);
+			msgStream.mymessage(MY_MESSAGE, _record);
+			msgStream.emitWithoutBroadcast(record.rid, _record);
 		}
 	}
 
