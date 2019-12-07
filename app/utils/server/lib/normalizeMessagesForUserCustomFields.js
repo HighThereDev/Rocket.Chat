@@ -21,7 +21,17 @@ const cleanSubMessage = ({ _id, attachments, customFields, mentions, replies, ms
 		}
 
 		if (customFields.additional_data !== undefined) {
-			customFields.additional_data = null;
+			//customFields.additional_data = null;
+
+	        let cleanAdditionalData = {
+	            subAdminArea : customFields.additional_data.subAdminArea,
+	            subLocality : customFields.additional_data.subLocality,
+	            adminArea : customFields.additional_data.adminArea,
+	            country : customFields.additional_data.country,
+	            countryCode : customFields.additional_data.countryCode,
+	            locality : customFields.additional_data.locality
+	        };
+	        customFields.additional_data = cleanAdditionalData;
 		}
 	}
 
@@ -96,9 +106,19 @@ export const normalizeMessagesForUserCustomFields = (messages, uid, populate=tru
 					message.customFields.loc = null;
 				}
 
-				if (message.customFields.additional_data !== undefined) {
-					message.customFields.additional_data = null;
-				}
+				if (customFields.additional_data !== undefined) {
+			        let cleanAdditionalData = {
+			            subAdminArea : customFields.additional_data.subAdminArea,
+			            subLocality : customFields.additional_data.subLocality,
+			            adminArea : customFields.additional_data.adminArea,
+			            country : customFields.additional_data.country,
+			            countryCode : customFields.additional_data.countryCode,
+			            locality : customFields.additional_data.locality
+			        };
+			        customFields.additional_data = cleanAdditionalData;
+		    	}
+
+			
 			}
 		});
 
