@@ -26,7 +26,7 @@ Meteor.startup(function() {
 			}
 
 
-			const [_record] = normalizeMessagesForUserCustomFields([record], record.u._id);
+			const [_record] = normalizeMessagesForUserCustomFields([record], record.u._id,true,true);
 			msgStream.mymessage(MY_MESSAGE, _record);
 			msgStream.emitWithoutBroadcast(record.rid, _record);
 		}

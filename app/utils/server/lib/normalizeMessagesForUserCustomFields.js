@@ -12,7 +12,7 @@ const filterStarred = (message, uid) => {
 // TODO: we should let clients get user names on demand instead of doing this
 const _id = (doc={}) => String(doc.id || doc._id);
 
-const cleanSubMessage = ({ _id, attachments, customFields, mentions, replies, msg, u, ts, _updatedAt}) => {
+const cleanSubMessage = ({ _id, attachments, customFields, mentions, replies, msg, u, ts, _updatedAt},includeLocationData) => {
 
 	//clean sensitive data
 	if (customFields !== undefined) {
@@ -21,17 +21,20 @@ const cleanSubMessage = ({ _id, attachments, customFields, mentions, replies, ms
 		}
 
 		if (customFields.additional_data !== undefined) {
-			//customFields.additional_data = null;
-
-	        let cleanAdditionalData = {
-	            subAdminArea : customFields.additional_data.subAdminArea,
-	            subLocality : customFields.additional_data.subLocality,
-	            adminArea : customFields.additional_data.adminArea,
-	            country : customFields.additional_data.country,
-	            countryCode : customFields.additional_data.countryCode,
-	            locality : customFields.additional_data.locality
-	        };
-	        customFields.additional_data = cleanAdditionalData;
+			//
+			if(includeLocationData){
+		        let cleanAdditionalData = {
+		            subAdminArea : customFields.additional_data.subAdminArea,
+		            subLocality : customFields.additional_data.subLocality,
+		            adminArea : customFields.additional_data.adminArea,
+		            country : customFields.additional_data.country,
+		            countryCode : customFields.additional_data.countryCode,
+		            locality : customFields.additional_data.locality
+		        };
+		        customFields.additional_data = cleanAdditionalData;
+	    	}else{
+	    		customFields.additional_data = null;
+	    	}
 		}
 	}
 
@@ -48,7 +51,7 @@ const cleanSubMessage = ({ _id, attachments, customFields, mentions, replies, ms
 	}
 };
 
-export const normalizeMessagesForUserCustomFields = (messages, uid, populate=true) => {
+export const normalizeMessagesForUserCustomFields = (messages, uid, populate=true, includeLocationData=false) => {
 	console.log(`normalizing messages for user custom fields`);
 	if (populate) {
 		console.log(`populating replies`);
@@ -70,11 +73,11 @@ export const normalizeMessagesForUserCustomFields = (messages, uid, populate=tru
 			if (message.tcount && message.tcount > 0) {
 				console.log('getting last reply');
 				if (replies[_id(message)]) {
-					message.last_reply = cleanSubMessage(replies[_id(message)]);
+					message.last_reply = cleanSubMessage(replies[_id(message)],includeLocationData);
 				} else {
 					const reply_message = Messages.findOne({ tmid: message._id }, { sort: { ts: -1 } });
 					if (reply_message) {
-						message.last_reply = cleanSubMessage(reply_message);
+						message.last_reply = cleanSubMessage(reply_message,includeLocationData);
 						replies[_id(message)] = reply_message;
 					}
 				}
@@ -85,11 +88,11 @@ export const normalizeMessagesForUserCustomFields = (messages, uid, populate=tru
 		messages.forEach((message) => {
 			if (message.tmid) {
 				if (_messages[message.tmid]) {
-					message.parent = cleanSubMessage(_messages[message.tmid]);
+					message.parent = cleanSubMessage(_messages[message.tmid],includeLocationData);
 				} else {
 					const parent_message = Messages.findOneById(message.tmid);
 					if (parent_message) {
-						message.parent = cleanSubMessage(parent_message);
+						message.parent = cleanSubMessage(parent_message,includeLocationData);
 						_messages[message.tmid] = parent_message;
 					}
 				}
@@ -106,16 +109,20 @@ export const normalizeMessagesForUserCustomFields = (messages, uid, populate=tru
 					message.customFields.loc = null;
 				}
 
-				if (customFields.additional_data !== undefined) {
-			        let cleanAdditionalData = {
-			            subAdminArea : customFields.additional_data.subAdminArea,
-			            subLocality : customFields.additional_data.subLocality,
-			            adminArea : customFields.additional_data.adminArea,
-			            country : customFields.additional_data.country,
-			            countryCode : customFields.additional_data.countryCode,
-			            locality : customFields.additional_data.locality
-			        };
-			        customFields.additional_data = cleanAdditionalData;
+				if (message.customFields.additional_data !== undefined) {
+					if(includeLocationData){
+				        let cleanAdditionalData = {
+				            subAdminArea : message.customFields.additional_data.subAdminArea,
+				            subLocality : message.customFields.additional_data.subLocality,
+				            adminArea : message.customFields.additional_data.adminArea,
+				            country : message.customFields.additional_data.country,
+				            countryCode : message.customFields.additional_data.countryCode,
+				            locality : message.customFields.additional_data.locality
+				        };
+				        message.customFields.additional_data = cleanAdditionalData;
+			    	}else{
+			    		message.customFields.additional_data = null;
+			    	}
 		    	}
 
 			
@@ -136,7 +143,23 @@ export const normalizeMessagesForUserCustomFields = (messages, uid, populate=tru
 			}
 
 			if (message.customFields.additional_data !== undefined) {
-				message.customFields.additional_data = null;
+				
+				if (message.customFields.additional_data !== undefined) {
+					if(includeLocationData){
+				        let cleanAdditionalData = {
+				            subAdminArea : message.customFields.additional_data.subAdminArea,
+				            subLocality : message.customFields.additional_data.subLocality,
+				            adminArea : message.customFields.additional_data.adminArea,
+				            country : message.customFields.additional_data.country,
+				            countryCode : message.customFields.additional_data.countryCode,
+				            locality : message.customFields.additional_data.locality
+				        };
+				        message.customFields.additional_data = cleanAdditionalData;
+			    	}else{
+			    		message.customFields.additional_data = null;
+			    	}
+		    	}
+
 			}
 		}
 
