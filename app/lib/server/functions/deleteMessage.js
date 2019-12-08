@@ -51,6 +51,9 @@ export const deleteMessage = function(message, user) {
 
 	if (showDeletedStatus) {
 		Messages.setAsDeletedByIdAndUser(message._id, user);
+		if(message.tmid){
+			Messages.updateParentRepliesWhenDelete(message.tmid);
+		}
 	} else {
 		Notifications.notifyRoom(message.rid, 'deleteMessage', { _id: message._id });
 	}

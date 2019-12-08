@@ -564,6 +564,35 @@ export class Messages extends Base {
 		return this.update(query, update);
 	}
 
+	updateParentRepliesWhenDelete(tmid){
+		if(tmid){
+
+			//get non deleted messages user list from  parent
+			const query = {	tmid : tmid,
+						t: { $exists: false }
+					};
+
+			const repliesList = this.find(query).map(({ u }) => u._id);
+
+			//#YOLO
+			const unique = (value, index, self) => {
+			  return self.indexOf(value) === index
+			}
+
+
+			//update parent
+			const update = {
+				$set: {
+					replies: repliesList.filter(unique);
+				}
+			};
+
+			const query2 = {_id : tmid};
+
+			return this.update(query2, update);
+		}
+	}
+
 	setPinnedByIdAndUserId(_id, pinnedBy, pinned, pinnedAt) {
 		if (pinned == null) { pinned = true; }
 		if (pinnedAt == null) { pinnedAt = 0; }
