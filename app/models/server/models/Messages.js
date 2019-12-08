@@ -583,7 +583,7 @@ export class Messages extends Base {
 			//update parent
 			const update = {
 				$set: {
-					replies: repliesList.filter(unique);
+					replies: repliesList.filter(unique)
 				}
 			};
 
