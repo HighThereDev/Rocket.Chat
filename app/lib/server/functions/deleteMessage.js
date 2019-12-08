@@ -50,9 +50,11 @@ export const deleteMessage = function(message, user) {
 	}
 
 	if (showDeletedStatus) {
+		console.log('--Deleting Message--');
 		Messages.setAsDeletedByIdAndUser(message._id, user);
-		if(message.tmid){
-			Messages.updateParentRepliesWhenDelete(message.tmid);
+		if(deletedMsg.tmid){
+			console.log('--Message is a thread, update replies--');
+			Messages.updateParentRepliesWhenDelete(deletedMsg.tmid);
 		}
 	} else {
 		Notifications.notifyRoom(message.rid, 'deleteMessage', { _id: message._id });

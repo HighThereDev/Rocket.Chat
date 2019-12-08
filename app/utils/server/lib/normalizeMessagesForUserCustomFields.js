@@ -52,9 +52,9 @@ const cleanSubMessage = ({ _id, attachments, customFields, mentions, replies, ms
 };
 
 export const normalizeMessagesForUserCustomFields = (messages, uid, populate=true, includeLocationData=false) => {
-	console.log(`normalizing messages for user custom fields`);
+	//console.log(`normalizing messages for user custom fields`);
 	if (populate) {
-		console.log(`populating replies`);
+		//console.log(`populating replies`);
 
 		const _messages = messages.reduce((acc, message) => {
 			acc[_id(message)] = message;
@@ -71,7 +71,7 @@ export const normalizeMessagesForUserCustomFields = (messages, uid, populate=tru
 
 		messages.forEach((message) => {
 			if (message.tcount && message.tcount > 0) {
-				console.log('getting last reply');
+				//console.log('getting last reply');
 				if (replies[_id(message)]) {
 					message.last_reply = cleanSubMessage(replies[_id(message)],includeLocationData);
 				} else {
