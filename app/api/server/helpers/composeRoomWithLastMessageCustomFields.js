@@ -6,8 +6,11 @@ API.helperMethods.set('composeRoomWithLastMessageCustomFields', function _compos
 		const [lastMessage] = normalizeMessagesForUserCustomFields([room.lastMessage], userId);
 		room.lastMessage = lastMessage;
 	}
-
-	room.customFields = null;
 	
+	if(room.customFields){
+		room.customFields.loc = null;
+		room.customFields.additional_data = null;
+	}
+
 	return room;
 });
