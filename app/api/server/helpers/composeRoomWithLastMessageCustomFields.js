@@ -1,6 +1,6 @@
 import { normalizeMessagesForUserCustomFields } from '../../../utils/server/lib/normalizeMessagesForUserCustomFields';
 import { API } from '../api';
-import { Users, Subscriptions } from '../../../models/server';
+import { Subscriptions } from '../../../models/server';
 
 API.helperMethods.set('composeRoomWithLastMessageCustomFields', function _composeRoomWithLastMessageCustomFields(room, userId) {
 	if (room.lastMessage) {
@@ -20,18 +20,20 @@ API.helperMethods.set('composeRoomWithLastMessageCustomFields', function _compos
 		fields: { 'u._id': 1, 'f': 1 }
 	}).fetch().forEach((subscription) => {
 		members.push(subscription.u._id);
-		if(f !== undefined && f === true){
+		if(subscription.f !== undefined && subscription.f === true){
 			favorites.push(subscription.u._id);
 		}
-	})
+	});
 
 	//subscriptions doesn't update user username/name  if  changed
+	/*
+	//not needed, only ids are enough right?
 	const users = Users.find({ _id: { $in: members } }, {
 		fields: { _id: 1, username: 1, name: 1 }
 	}).fetch();
+	*/
 
-
-	room.participants = participants;
+	room.participants = members;
 	room.favorites = favorites;
 
 	return room;
