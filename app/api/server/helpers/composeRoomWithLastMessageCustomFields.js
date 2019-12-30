@@ -13,18 +13,26 @@ API.helperMethods.set('composeRoomWithLastMessageCustomFields', function _compos
 		room.customFields.additional_data = null;
 	}
 
+	let members = [];
+	let favorites = [];
+
 	const subscriptions = Subscriptions.findByRoomId(room._id, {
-		fields: { 'u._id': 1 }
-	});
+		fields: { 'u._id': 1, 'f': 1 }
+	}).fetch().forEach((subscription) => {
+		members.push(subscription.u._id);
+		if(f !== undefined && f === true){
+			favorites.push(subscription.u._id);
+		}
+	})
 
-	const members = subscriptions.fetch().map((s) => s.u && s.u._id);
-
+	//subscriptions doesn't update user username/name  if  changed
 	const users = Users.find({ _id: { $in: members } }, {
 		fields: { _id: 1, username: 1, name: 1 }
 	}).fetch();
 
-	room.participants = users;
 
+	room.participants = participants;
+	room.favorites = favorites;
 
 	return room;
 });
