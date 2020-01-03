@@ -637,7 +637,7 @@ API.v1.addRoute('channels.messages', { authRequired: true, rateLimiterOptions: f
 		const { offset, count } = this.getPaginationItems();
 		const { sort, fields, query } = this.parseJsonQuery();
 
-		const ourQuery = Object.assign({}, query, { rid: findResult._id });
+		const ourQuery = Object.assign({}, query, { rid: findResult._id,  t: { $exists: false } });
 
 		// Special check for the permissions
 		if (hasPermission(this.userId, 'view-joined-room') && !Subscriptions.findOneByRoomIdAndUserId(findResult._id, this.userId, { fields: { _id: 1 } })) {
