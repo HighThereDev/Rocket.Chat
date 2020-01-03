@@ -1,6 +1,6 @@
 import { normalizeMessagesForUserCustomFields } from '../../../utils/server/lib/normalizeMessagesForUserCustomFields';
 import { API } from '../api';
-import { Subscriptions } from '../../../models/server';
+import { Subscriptions, Users } from '../../../models/server';
 
 API.helperMethods.set('composeRoomWithLastMessageCustomFields', function _composeRoomWithLastMessageCustomFields(room, userId) {
 	if (room.lastMessage) {
@@ -33,6 +33,12 @@ API.helperMethods.set('composeRoomWithLastMessageCustomFields', function _compos
 	}).fetch();
 	*/
 
+	//get name of owner since is not present
+	const owner = Users.findOne({ _id: room.u._id}, {
+		fields: { _id: 1, username: 1, name: 1 }
+	});	
+
+	room.u = owner;
 	room.participants = members;
 	room.favorites = favorites;
 
