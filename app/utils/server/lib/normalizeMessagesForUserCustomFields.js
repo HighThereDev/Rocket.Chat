@@ -1,4 +1,4 @@
-import { Users, Messages } from '../../../models/server';
+import { Users, Messages, Rooms } from '../../../models/server';
 import { settings } from '../../../settings/server';
 
 const filterStarred = (message, uid) => {
@@ -100,6 +100,9 @@ export const normalizeMessagesForUserCustomFields = (messages, uid, populate=tru
 		});
 	}
 
+
+	const roomsIds = new Set();
+
 	// if not using real names, there is nothing else to do
 	if (!settings.get('UI_Use_Real_Name')) {
 		messages.forEach((message) => {
@@ -124,15 +127,40 @@ export const normalizeMessagesForUserCustomFields = (messages, uid, populate=tru
 			    		message.customFields.additional_data = null;
 			    	}
 		    	}
-
 			
 			}
+			
+			roomsIds.add(message.rid);
+
 		});
+		//query room
+		const roomList = {};
+
+		Rooms.findRoomsByIds([...roomsIds.values()],{
+			fields:{
+				_id: 1,
+				name: 1,
+				fname: 1,
+			}
+		}).forEach((room) => {
+			if(room.fname !== undefined){ //validate full name exists
+				roomList[room._id] = room.fname;
+			}else{
+				roomList[room._id] = room.name;	
+			}
+		});
+		
+		messages.forEach((message) => {
+			//assign rname
+			message.rname = roomList[message.rid] !==  undefined ? roomList[message.rid] : null;
+		});
+
 
 		return messages.map((message) => filterStarred(message, uid));
 	}
 
 	const usernames = new Set();
+
 
 	messages.forEach((message) => {
 		message = filterStarred(message, uid);
@@ -163,6 +191,7 @@ export const normalizeMessagesForUserCustomFields = (messages, uid, populate=tru
 			}
 		}
 
+		roomsIds.add(message.rid);
 		usernames.add(message.u.username);
 
 		(message.mentions || []).forEach(({ username }) => { usernames.add(username); });
@@ -182,6 +211,25 @@ export const normalizeMessagesForUserCustomFields = (messages, uid, populate=tru
 		users[user.username] = user.name;
 	});
 
+
+	//query room
+	const roomList = {};
+
+	Rooms.findRoomsByIds([...roomsIds.values()],{
+		fields:{
+			_id: 1,
+			name: 1,
+			fname: 1,
+		}
+	}).forEach((room) => {
+		if(room.fname !== undefined){ //validate full name exists
+			roomList[room._id] = room.fname;
+		}else{
+			roomList[room._id] = room.name;	
+		}
+	});
+	
+
 	messages.forEach((message) => {
 		message.u.name = users[message.u.username];
 
@@ -191,6 +239,10 @@ export const normalizeMessagesForUserCustomFields = (messages, uid, populate=tru
 			const names = message.reactions[reaction].usernames.map((username) => users[username]);
 			message.reactions[reaction].names = names;
 		});
+
+
+		//assign rname
+		message.rname = roomList[message.rid] !==  undefined ? roomList[message.rid] : null;
 	});
 
 	return messages;

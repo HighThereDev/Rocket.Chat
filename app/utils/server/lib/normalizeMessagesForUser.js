@@ -78,11 +78,13 @@ export const normalizeMessagesForUser = (messages, uid, populate=true) => {
 	}
 
 	const usernames = new Set();
+	const roomsIds = new Set();
 
 	messages.forEach((message) => {
 		message = filterStarred(message, uid);
 
 		usernames.add(message.u.username);
+		roomsIds.add(message.rid);
 
 		(message.mentions || []).forEach(({ username }) => { usernames.add(username); });
 
@@ -91,6 +93,7 @@ export const normalizeMessagesForUser = (messages, uid, populate=true) => {
 	});
 
 	const users = {};
+	const roomList = {};
 
 	Users.findUsersByUsernames([...usernames.values()], {
 		fields: {
@@ -101,6 +104,22 @@ export const normalizeMessagesForUser = (messages, uid, populate=true) => {
 		users[user.username] = user.name;
 	});
 
+	//query room
+	Rooms.findRoomsByIds([...roomsIds.values()],{
+		fields:{
+			_id: 1,
+			name: 1,
+			fname: 1,
+		}
+	}).forEach((room) => {
+		if(room.fname !== undefined){ //validate full name exists
+			roomList[room._id] = room.fname;
+		}else{
+			roomList[room._id] = room.name;	
+		}
+	});
+
+
 	messages.forEach((message) => {
 		message.u.name = users[message.u.username];
 
@@ -110,6 +129,9 @@ export const normalizeMessagesForUser = (messages, uid, populate=true) => {
 			const names = message.reactions[reaction].usernames.map((username) => users[username]);
 			message.reactions[reaction].names = names;
 		});
+		
+		message.rname = roomList[message.rid] !==  undefined ? roomList[message.rid] : null;
+
 	});
 
 	return messages;

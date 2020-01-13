@@ -48,6 +48,16 @@ export class Rooms extends Base {
 		return this.findOne(query, options);
 	}
 
+
+	findRoomsByIds(ids, options) {
+		const query = {
+			_id: {
+				$in: ids,
+			},
+		};
+		return this.find(query, options);
+	}
+
 	updateSurveyFeedbackById(_id, surveyFeedback) {
 		const query = {
 			_id,
