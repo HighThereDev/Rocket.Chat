@@ -1,4 +1,4 @@
-import { Users, Messages } from '../../../models/server';
+import { Users, Messages, Rooms } from '../../../models/server';
 import { settings } from '../../../settings/server';
 
 const filterStarred = (message, uid) => {
